@@ -9,6 +9,10 @@ endpoints:
 spring:
   main:
     show_banner: false
+  cloud:
+    dataflow:
+      yarn:
+        version: "@project.version@"
   yarn:
     appName: spring-cloud-dataflow-yarn-app
     applicationBaseDir: /dataflow/apps/
