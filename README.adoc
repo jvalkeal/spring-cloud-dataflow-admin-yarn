@@ -11,7 +11,7 @@ Or build project and run tests(tests take long time to run):
 mvn clean package 
 ```
 
-All needed artifacts are packaged in a distribution file `spring-cloud-dataflow-admin-yarn-1.0.0.BUILD-SNAPSHOT.zip`.
+All needed artifacts are packaged in a distribution file `spring-cloud-dataflow-admin-yarn-dist/target/spring-cloud-dataflow-admin-yarn-dist.zip`.
 
 ```
 # unzip spring-cloud-dataflow-admin-yarn-1.0.0.BUILD-SNAPSHOT.zip
