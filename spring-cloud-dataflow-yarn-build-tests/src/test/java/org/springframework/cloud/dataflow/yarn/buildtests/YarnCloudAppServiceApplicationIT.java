@@ -38,11 +38,11 @@ import org.springframework.yarn.test.junit.ApplicationInfo;
 
 /**
  * Integration tests for {@link YarnCloudAppServiceApplication}.
- * 
+ *
  * Tests can be run in sts if project is build first. Build
  * prepares needed yarn files in expected paths.
  * $ mvn clean package -DskipTests
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -57,42 +57,42 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
 		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),
 				"application.properties", instanceProperties, null, initializers);
-		
+
 		app.afterPropertiesSet();
 		setYarnClient(app.getContext().getBean(YarnClient.class));
-				
+
 		app.pushApplication("app");
 		Collection<CloudAppInfo> pushedApplications = app.getPushedApplications();
 		assertThat(pushedApplications.size(), is(1));
-		
+
 		String appId = app.submitApplication("app");
 		ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);		
+		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);
 		assertThat(info.getYarnApplicationState(), is(YarnApplicationState.RUNNING));
-		
+
 		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
 		assertThat(submittedApplications.size(), is(1));
-		
+
 		Collection<String> clustersInfo = app.getClustersInfo(applicationId);
 		assertThat(clustersInfo.size(), is(0));
 
 		// before SHDP-532 gets in, create/start individually
 		Map<String, Object> extraProperties1 = new HashMap<String, Object>();
-		extraProperties1.put("containerModules", "org.springframework.cloud.stream.module:log-sink:jar:exec:1.0.0.BUILD-SNAPSHOT");		
-		extraProperties1.put("containerArg1", "spring.cloud.stream.bindings.input.destination=ticktock.0");		
-		app.createCluster(applicationId, "ticktock:log", "module-template", "default", 1, null, null, null, extraProperties1);		
-		
+		extraProperties1.put("containerModules", "org.springframework.cloud.stream.module:log-sink:jar:exec:1.0.0.BUILD-SNAPSHOT");
+		extraProperties1.put("containerArg1", "spring.cloud.stream.bindings.input.destination=ticktock.0");
+		app.createCluster(applicationId, "ticktock:log", "module-template", "default", 1, null, null, null, extraProperties1);
+
 		app.startCluster(applicationId, "ticktock:log");
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started LogSinkApplication");
-		
+
 		Map<String, Object> extraProperties2 = new HashMap<String, Object>();
-		extraProperties2.put("containerModules", "org.springframework.cloud.stream.module:time-source:jar:exec:1.0.0.BUILD-SNAPSHOT");		
-		extraProperties2.put("containerArg1", "spring.cloud.stream.bindings.output.destination=ticktock.0");		
+		extraProperties2.put("containerModules", "org.springframework.cloud.stream.module:time-source:jar:exec:1.0.0.BUILD-SNAPSHOT");
+		extraProperties2.put("containerArg1", "spring.cloud.stream.bindings.output.destination=ticktock.0");
 		app.createCluster(applicationId, "ticktock:time", "module-template", "default", 1, null, null, null, extraProperties2);
-		
+
 		app.startCluster(applicationId, "ticktock:time");
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started TimeSourceApplication");
-		
+
 		app.destroy();
 	}
 
@@ -107,45 +107,45 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
 		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),
 				"application.properties", instanceProperties, null, initializers);
-		
+
 		app.afterPropertiesSet();
 		setYarnClient(app.getContext().getBean(YarnClient.class));
-				
+
 		app.pushApplication("app");
 		Collection<CloudAppInfo> pushedApplications = app.getPushedApplications();
 		assertThat(pushedApplications.size(), is(1));
-		
+
 		String appId = app.submitApplication("app");
 		ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);		
+		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);
 		assertThat(info.getYarnApplicationState(), is(YarnApplicationState.RUNNING));
-		
+
 		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
 		assertThat(submittedApplications.size(), is(1));
-		
+
 		Collection<String> clustersInfo = app.getClustersInfo(applicationId);
 		assertThat(clustersInfo.size(), is(0));
 
 		// before SHDP-532 gets in, create/start individually
 		Map<String, Object> extraProperties1 = new HashMap<String, Object>();
-		extraProperties1.put("containerModules", "org.springframework.cloud.stream.module:hdfs-sink:jar:exec:1.0.0.BUILD-SNAPSHOT");		
-		extraProperties1.put("containerArg1", "spring.cloud.stream.bindings.input.destination=ticktock.0");		
-		app.createCluster(applicationId, "ticktock:hdfs", "module-template", "default", 1, null, null, null, extraProperties1);		
-		
+		extraProperties1.put("containerModules", "org.springframework.cloud.stream.module:hdfs-sink:jar:exec:1.0.0.BUILD-SNAPSHOT");
+		extraProperties1.put("containerArg1", "spring.cloud.stream.bindings.input.destination=ticktock.0");
+		app.createCluster(applicationId, "ticktock:hdfs", "module-template", "default", 1, null, null, null, extraProperties1);
+
 		app.startCluster(applicationId, "ticktock:hdfs");
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started HdfsSinkApplication");
-		
+
 		Map<String, Object> extraProperties2 = new HashMap<String, Object>();
-		extraProperties2.put("containerModules", "org.springframework.cloud.stream.module:time-source:jar:exec:1.0.0.BUILD-SNAPSHOT");		
-		extraProperties2.put("containerArg1", "spring.cloud.stream.bindings.output.destination=ticktock.0");		
+		extraProperties2.put("containerModules", "org.springframework.cloud.stream.module:time-source:jar:exec:1.0.0.BUILD-SNAPSHOT");
+		extraProperties2.put("containerArg1", "spring.cloud.stream.bindings.output.destination=ticktock.0");
 		app.createCluster(applicationId, "ticktock:time", "module-template", "default", 1, null, null, null, extraProperties2);
-		
+
 		app.startCluster(applicationId, "ticktock:time");
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started TimeSourceApplication");
 
 		waitHdfsFile("/tmp/hdfs-sink/data-0.txt", 2, TimeUnit.MINUTES);
-		
+
 		app.destroy();
 	}
-	
+
 }
