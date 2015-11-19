@@ -23,6 +23,7 @@
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>
 			<outputDirectory>/lib</outputDirectory>
+			<outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
 			<includes>
 				<include>org.springframework.cloud:spring-cloud-dataflow-admin-yarn</include>
 				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-appmaster</include>
