@@ -12,9 +12,8 @@ spring:
       clientClass: org.springframework.yarn.client.DefaultApplicationYarnClient
       files:
         - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-taskappmaster-*.jar"
-        - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-appmaster-*.jar"
-        - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-container-*.jar"
+        - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-taskcontainer-*.jar"
       launchcontext:
-        archiveFile: spring-cloud-dataflow-yarn-appmaster-${spring.cloud.dataflow.yarn.version}.jar
+        archiveFile: spring-cloud-dataflow-yarn-taskappmaster-${spring.cloud.dataflow.yarn.version}.jar
       resource:
         memory: 1g

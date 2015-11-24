@@ -44,7 +44,7 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	public DefaultYarnCloudAppService(String bootstrapName, String dataflowVersion) {
 		this(bootstrapName, dataflowVersion, null);
 	}
-	
+
 	public DefaultYarnCloudAppService(String bootstrapName, String dataflowVersion, ApplicationContextInitializer<?>[] initializers) {
 		this.bootstrapName = bootstrapName;
 		this.dataflowVersion = dataflowVersion;
@@ -140,12 +140,13 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 				configFileProperties.setProperty("spring.yarn.applicationVersion", appVersion);
 			}
 			if (StringUtils.hasText(dataflowVersion)) {
-				configFileProperties.setProperty("spring.cloud.dataflow.yarn.version", dataflowVersion);				
+				configFileProperties.setProperty("spring.cloud.dataflow.yarn.version", dataflowVersion);
 			}
 
 			String[] runArgs = null;
 			if (StringUtils.hasText(bootstrapName)) {
 				runArgs = new String[] { "--spring.config.name=" + bootstrapName };
+//				runArgs = new String[] { "--spring.config.name=task" };
 			}
 
 			app = new YarnCloudAppServiceApplication(appVersion, dataflowVersion, "application.properties", configFileProperties,

@@ -1,0 +1,42 @@
+logging:
+  level:
+    org.springframework.yarn: DEBUG
+server:
+  port: 0
+endpoints:
+  shutdown:
+    enabled: true
+spring:
+  main:
+    show_banner: false
+  cloud:
+    dataflow:
+      yarn:
+        version: "@project.version@"
+  yarn:
+    appName: spring-cloud-dataflow-yarn-task-app
+    applicationBaseDir: /dataflow/apps/
+    appmaster:
+      containerCount: 1
+      xappmasterClass: org.springframework.cloud.dataflow.yarn.taskappmaster.DataFlowTaskAppmaster
+      xkeepContextAlive: true
+      localizer:
+        patterns:
+          - "spring-cloud-dataflow-yarn-container-*.jar"
+          - "spring-cloud-dataflow-yarn-taskcontainer-*.jar"
+          - "servers.yml"
+      resource:
+        priority: 10
+        memory: 64
+        virtualCores: 1
+      launchcontext:
+        arguments:
+          -Dserver.port: 0
+          -Dspring.jmx.enabled: false              
+          -Dspring.config.location: servers.yml
+          containerModules: org.springframework.cloud.task.module:timestamp-task:jar:exec:1.3.0.BUILD-SNAPSHOT
+        locality: false
+        archiveFile: spring-cloud-dataflow-yarn-taskcontainer-${spring.cloud.dataflow.yarn.version}.jar
+    endpoints:
+      containerregister:
+        enabled: false

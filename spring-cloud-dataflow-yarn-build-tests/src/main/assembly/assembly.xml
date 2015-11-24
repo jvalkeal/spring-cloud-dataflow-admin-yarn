@@ -13,7 +13,9 @@
 			<useAllReactorProjects>true</useAllReactorProjects>
 			<includes>
 				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-appmaster</include>
+				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-taskappmaster</include>
 				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-container</include>
+				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-taskcontainer</include>
 			</includes>
 			<binaries>
 				<unpack>false</unpack>

@@ -22,6 +22,7 @@ import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudA
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
@@ -49,8 +50,7 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public ModuleDeployer taskModuleDeployer() throws Exception {
-		// TODO: not yet supported but using same deployer for admin not to fail
-		return new YarnModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine(false));
+		return new YarnTaskModuleDeployer(yarnCloudAppService());
 	}
 
 	@Bean

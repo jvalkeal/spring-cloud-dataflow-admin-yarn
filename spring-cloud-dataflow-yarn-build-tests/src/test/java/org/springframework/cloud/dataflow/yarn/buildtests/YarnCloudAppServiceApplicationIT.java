@@ -148,4 +148,30 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 		app.destroy();
 	}
 
+	@Test
+	public void testTask1() throws Exception {
+		Properties instanceProperties = new Properties();
+		instanceProperties.setProperty("spring.yarn.applicationVersion", "app");
+		instanceProperties.setProperty("spring.cloud.dataflow.yarn.version", getProjectVersion());
+		String[] runArgs = new String[] { "--spring.config.name=task" };
+		ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
+				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
+		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),
+				"application.properties", instanceProperties, runArgs, initializers);
+
+		app.afterPropertiesSet();
+		setYarnClient(app.getContext().getBean(YarnClient.class));
+
+		app.pushApplication("app");
+		Collection<CloudAppInfo> pushedApplications = app.getPushedApplications();
+		assertThat(pushedApplications.size(), is(1));
+
+		String appId = app.submitApplication("app");
+		ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
+		ApplicationInfo info = waitState(applicationId, 3, TimeUnit.MINUTES, YarnApplicationState.FINISHED, YarnApplicationState.FAILED);
+		assertThat(info.getYarnApplicationState(), is(YarnApplicationState.FINISHED));
+
+		app.destroy();
+	}
+
 }
