@@ -16,8 +16,36 @@
 
 package org.springframework.cloud.dataflow.yarn.taskappmaster;
 
-import org.springframework.yarn.am.StaticEventingAppmaster;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
-public class DataFlowTaskAppmaster extends StaticEventingAppmaster {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.dataflow.yarn.common.DataflowModuleYarnProperties;
+import org.springframework.util.Assert;
+import org.springframework.yarn.am.StaticAppmaster;
+
+public class DataFlowTaskAppmaster extends StaticAppmaster {
+
+	@Autowired
+	private DataflowModuleYarnProperties dataflowModuleYarnProperties;
+
+	@Override
+	protected void onInit() throws Exception {
+		super.onInit();
+		Assert.hasText(dataflowModuleYarnProperties.getCoordinates(), "Module coordinates must be set");
+	}
+
+	@Override
+	public List<String> getCommands() {
+		List<String> list = new ArrayList<String>(super.getCommands());
+		list.add(Math.max(list.size() - 2, 0), "--dataflow.module.coordinates=" + dataflowModuleYarnProperties.getCoordinates());
+		Set<Entry<String, String>> entrySet = dataflowModuleYarnProperties.getParameters().entrySet();
+		for (Entry<String, String> entry : entrySet) {
+			list.add(Math.max(list.size() - 2, 0), "--dataflow.module.parameters." + entry.getKey() + "=" + entry.getValue());
+		}
+		return list;
+	}
 
 }

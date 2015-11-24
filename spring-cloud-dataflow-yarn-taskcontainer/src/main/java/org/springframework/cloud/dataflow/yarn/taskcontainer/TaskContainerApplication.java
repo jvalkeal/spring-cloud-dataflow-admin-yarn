@@ -17,34 +17,40 @@
 package org.springframework.cloud.dataflow.yarn.taskcontainer;
 
 import java.util.Arrays;
-import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.dataflow.yarn.common.DataflowModuleYarnProperties;
 import org.springframework.cloud.stream.module.launcher.ModuleLaunchRequest;
 import org.springframework.cloud.stream.module.launcher.ModuleLauncher;
 import org.springframework.cloud.stream.module.launcher.ModuleLauncherConfiguration;
 import org.springframework.context.annotation.Import;
+import org.springframework.util.Assert;
 
 @SpringBootApplication
 @Import(ModuleLauncherConfiguration.class)
+@EnableConfigurationProperties(DataflowModuleYarnProperties.class)
 public class TaskContainerApplication implements CommandLineRunner {
 
 	@Autowired
 	private ModuleLauncher moduleLauncher;
 
+	@Autowired
+	private DataflowModuleYarnProperties dataflowModuleYarnProperties;
+
 	@Override
 	public void run(String... args) throws Exception {
-		HashMap<String, String> moduleArgs = new HashMap<String, String>();
+		Assert.hasText(dataflowModuleYarnProperties.getCoordinates(), "Module coordinates must be set");
 		moduleLauncher.launch(Arrays.asList(new ModuleLaunchRequest(
-				"org.springframework.cloud.task.module:timestamp-task:jar:exec:1.0.0.BUILD-SNAPSHOT",
-				moduleArgs)));
+				dataflowModuleYarnProperties.getCoordinates(),
+				dataflowModuleYarnProperties.getParameters())));
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(TaskContainerApplication.class);
+		SpringApplication.run(TaskContainerApplication.class, args);
 	}
 
 }

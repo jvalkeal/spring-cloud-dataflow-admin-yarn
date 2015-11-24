@@ -18,6 +18,8 @@ package org.springframework.cloud.dataflow.yarn.taskappmaster;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.dataflow.yarn.common.DataflowModuleYarnProperties;
 
 /**
  * Yarn application bootstrapping appmaster.
@@ -26,10 +28,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class AppmasterApplication {
+@EnableConfigurationProperties({ DataflowModuleYarnProperties.class })
+public class TaskAppmasterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AppmasterApplication.class, args);
+		SpringApplication.run(TaskAppmasterApplication.class, args);
 	}
 
 }

@@ -14,6 +14,7 @@
 	</parent>
 
 	<modules>
+		<module>spring-cloud-dataflow-yarn-common</module>
 		<module>spring-cloud-dataflow-yarn-appmaster</module>
 		<module>spring-cloud-dataflow-yarn-taskappmaster</module>
 		<module>spring-cloud-dataflow-yarn-container</module>
