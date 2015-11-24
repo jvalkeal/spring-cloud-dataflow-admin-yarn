@@ -16,6 +16,7 @@
 
 package org.springframework.cloud.dataflow.module.deployer.yarn;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.springframework.cloud.dataflow.core.ArtifactCoordinates;
@@ -24,6 +25,7 @@ import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 
 public class YarnTaskModuleDeployer implements ModuleDeployer {
 
@@ -43,8 +45,8 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 		Map<String, String> definitionParameters = definition.getParameters();
 		Map<String, String> deploymentProperties = request.getDeploymentProperties();
 
-		yarnCloudAppService.pushApplication("app");
-		yarnCloudAppService.submitApplication("app");
+		yarnCloudAppService.pushApplication("app", CloudAppType.TASK);
+		yarnCloudAppService.submitApplication("app", CloudAppType.TASK);
 
 		return id;
 	}
@@ -55,7 +57,10 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 
 	@Override
 	public ModuleStatus status(ModuleDeploymentId id) {
-		return null;
+		return ModuleStatus.of(id)
+				.with(new YarnModuleInstanceStatus(id.toString(), false,
+						Collections.<String, String>emptyMap()))
+				.build();
 	}
 
 	@Override

@@ -45,8 +45,9 @@ public interface YarnCloudAppService {
 	 * files into hdfs without trying to start a new application instance.
 	 *
 	 * @param appVersion the app version
+	 * @param cloudAppType the cloud app type
 	 */
-	void pushApplication(String appVersion);
+	void pushApplication(String appVersion, CloudAppType cloudAppType);
 
 	/**
 	 * Submit new application instance into yarn. Prior to calling a new
@@ -54,9 +55,10 @@ public interface YarnCloudAppService {
 	 * i.e. using {@link #pushApplication(String)} method.
 	 *
 	 * @param appVersion the app version
+	 * @param cloudAppType the cloud app type
 	 * @return the application id
 	 */
-	String submitApplication(String appVersion);
+	String submitApplication(String appVersion, CloudAppType cloudAppType);
 
 	/**
 	 * Creates the container cluster.
@@ -155,6 +157,11 @@ public interface YarnCloudAppService {
 			return address;
 		}
 
+	}
+
+	public enum CloudAppType {
+		STREAM,
+		TASK
 	}
 
 }

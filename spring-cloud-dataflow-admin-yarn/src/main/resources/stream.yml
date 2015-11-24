@@ -12,15 +12,12 @@ spring:
     client:
       clientClass: org.springframework.yarn.client.DefaultApplicationYarnClient
       files:
-        - "file:${dataflow.yarn.app.appmaster.path:lib}/spring-cloud-dataflow-yarn-taskappmaster-*.jar"
-        - "file:${dataflow.yarn.app.container.path:lib}/spring-cloud-dataflow-yarn-taskcontainer-*.jar"
+        - "file:${dataflow.yarn.app.appmaster.path:lib}/spring-cloud-dataflow-yarn-appmaster-*.jar"
+        - "file:${dataflow.yarn.app.container.path:lib}/spring-cloud-dataflow-yarn-container-*.jar"
         - "file:${dataflow.yarn.app.config.path:config}/servers.yml"
       launchcontext:
         arguments:
           -Dspring.config.location: ${dataflow.yarn.app.config.path:config}/servers.yml
-          --dataflow.module.coordinates: org.springframework.cloud.task.module:timestamp-task:jar:exec:1.0.0.BUILD-SNAPSHOT
-          --dataflow.module.parameters.arg1: xxxval1
-          --dataflow.module.parameters.arg2: xxxval2
-        archiveFile: spring-cloud-dataflow-yarn-taskappmaster-${spring.cloud.dataflow.yarn.version}.jar
+        archiveFile: spring-cloud-dataflow-yarn-appmaster-${spring.cloud.dataflow.yarn.version}.jar
       resource:
         memory: 1g
