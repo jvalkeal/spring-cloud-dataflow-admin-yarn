@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.dataflow.yarn.container;
+package org.springframework.cloud.dataflow.yarn.streamcontainer;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,9 +48,9 @@ import org.springframework.yarn.container.YarnContainerSupport;
 @SpringBootApplication
 @Import(ModuleLauncherConfiguration.class)
 @YarnComponent
-public class ContainerApplication extends YarnContainerSupport {
+public class StreamContainerApplication extends YarnContainerSupport {
 
-	private final static Log log = LogFactory.getLog(ContainerApplication.class);
+	private final static Log log = LogFactory.getLog(StreamContainerApplication.class);
 
 	@Autowired
 	private ModuleLauncher moduleLauncher;
@@ -88,7 +88,7 @@ public class ContainerApplication extends YarnContainerSupport {
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(ContainerApplication.class, args);
+		SpringApplication.run(StreamContainerApplication.class, args);
 	}
 
 }

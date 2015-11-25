@@ -15,9 +15,9 @@
 
 	<modules>
 		<module>spring-cloud-dataflow-yarn-common</module>
-		<module>spring-cloud-dataflow-yarn-appmaster</module>
+		<module>spring-cloud-dataflow-yarn-streamappmaster</module>
 		<module>spring-cloud-dataflow-yarn-taskappmaster</module>
-		<module>spring-cloud-dataflow-yarn-container</module>
+		<module>spring-cloud-dataflow-yarn-streamcontainer</module>
 		<module>spring-cloud-dataflow-yarn-taskcontainer</module>
 		<module>spring-cloud-dataflow-yarn-client</module>
 		<module>spring-cloud-dataflow-admin-yarn</module>

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.dataflow.yarn.appmaster;
+package org.springframework.cloud.dataflow.yarn.streamappmaster;
 
 import java.util.ArrayList;
 import java.util.List;

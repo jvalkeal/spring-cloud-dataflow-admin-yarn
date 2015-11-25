@@ -34,6 +34,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.StringUtils;
 import org.springframework.yarn.test.support.ContainerLogUtils;
 
+/**
+ * Integration tests for {@link YarnTaskModuleDeployer}.
+ *
+ * Tests can be run in sts if project is build first. Build
+ * prepares needed yarn files in expected paths.
+ * $ mvn clean package -DskipTests
+ *
+ * @author Janne Valkealahti
+ *
+ */
 public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 
 	private static final String GROUP_ID = "org.springframework.cloud.task.module";

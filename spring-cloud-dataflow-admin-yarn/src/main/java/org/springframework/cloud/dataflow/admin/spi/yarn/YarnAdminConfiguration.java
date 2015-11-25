@@ -21,7 +21,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +42,7 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public ModuleDeployer processModuleDeployer() throws Exception {
-		return new YarnModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine());
+		return new YarnStreamModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine());
 	}
 
 	@Bean

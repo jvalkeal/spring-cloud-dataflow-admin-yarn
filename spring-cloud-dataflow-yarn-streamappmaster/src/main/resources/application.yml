@@ -17,11 +17,11 @@ spring:
     appName: spring-cloud-dataflow-yarn-app
     applicationBaseDir: /dataflow/apps/
     appmaster:
-      appmasterClass: org.springframework.cloud.dataflow.yarn.appmaster.DataFlowAppmaster
+      appmasterClass: org.springframework.cloud.dataflow.yarn.streamappmaster.DataFlowAppmaster
       keepContextAlive: true
       localizer:
         patterns:
-          - "spring-cloud-dataflow-yarn-container-*.jar"
+          - "spring-cloud-dataflow-yarn-streamcontainer-*.jar"
           - "servers.yml"
       containercluster:
         enabled: true
@@ -37,7 +37,7 @@ spring:
                 -Dspring.jmx.enabled: false              
                 -Dspring.config.location: servers.yml
               locality: false
-              archiveFile: spring-cloud-dataflow-yarn-container-${spring.cloud.dataflow.yarn.version}.jar
+              archiveFile: spring-cloud-dataflow-yarn-streamcontainer-${spring.cloud.dataflow.yarn.version}.jar
     endpoints:
       containercluster:
         enabled: true

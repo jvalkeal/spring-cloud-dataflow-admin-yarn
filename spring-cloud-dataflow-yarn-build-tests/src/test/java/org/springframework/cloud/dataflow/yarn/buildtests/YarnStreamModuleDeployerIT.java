@@ -42,8 +42,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppServiceApplication;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleDeployer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -54,7 +53,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.yarn.test.support.ContainerLogUtils;
 
 /**
- * Integration tests for {@link YarnCloudAppServiceApplication}.
+ * Integration tests for {@link YarnStreamModuleDeployer}.
  *
  * Tests can be run in sts if project is build first. Build
  * prepares needed yarn files in expected paths.
@@ -63,7 +62,7 @@ import org.springframework.yarn.test.support.ContainerLogUtils;
  * @author Janne Valkealahti
  *
  */
-public class YarnModuleDeployerIT extends AbstractCliBootYarnClusterTests {
+public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 
 	private static final String GROUP_ID = "org.springframework.cloud.stream.module";
 	private static final String VERSION = "1.0.0.BUILD-SNAPSHOT";
@@ -89,7 +88,7 @@ public class YarnModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 	@Test
 	public void testStreamTimeLog() throws Exception {
 		assertThat(context.containsBean("processModuleDeployer"), is(true));
-		assertThat(context.getBean("processModuleDeployer"), instanceOf(YarnModuleDeployer.class));
+		assertThat(context.getBean("processModuleDeployer"), instanceOf(YarnStreamModuleDeployer.class));
 		ModuleDeployer deployer = context.getBean("processModuleDeployer", ModuleDeployer.class);
 		YarnCloudAppService yarnCloudAppService = context.getBean(YarnCloudAppService.class);
 

@@ -46,9 +46,9 @@ import org.springframework.statemachine.StateMachine;
  *
  * @author Janne Valkealahti
  */
-public class YarnModuleDeployer implements ModuleDeployer {
+public class YarnStreamModuleDeployer implements ModuleDeployer {
 
-	private static final Logger logger = LoggerFactory.getLogger(YarnModuleDeployer.class);
+	private static final Logger logger = LoggerFactory.getLogger(YarnStreamModuleDeployer.class);
 	private final YarnCloudAppService yarnCloudAppService;
 	private final StateMachine<States, Events> stateMachine;
 
@@ -58,7 +58,7 @@ public class YarnModuleDeployer implements ModuleDeployer {
 	 * @param yarnCloudAppService the yarn cloud app service
 	 * @param stateMachine the state machine
 	 */
-	public YarnModuleDeployer(YarnCloudAppService yarnCloudAppService, StateMachine<States, Events> stateMachine) {
+	public YarnStreamModuleDeployer(YarnCloudAppService yarnCloudAppService, StateMachine<States, Events> stateMachine) {
 		this.yarnCloudAppService = yarnCloudAppService;
 		this.stateMachine = stateMachine;
 	}

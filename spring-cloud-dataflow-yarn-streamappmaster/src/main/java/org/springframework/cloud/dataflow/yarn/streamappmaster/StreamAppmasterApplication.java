@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.cloud.dataflow.yarn.appmaster;
+package org.springframework.cloud.dataflow.yarn.streamappmaster;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -26,10 +26,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *
  */
 @SpringBootApplication
-public class AppmasterApplication {
+public class StreamAppmasterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(AppmasterApplication.class, args);
+		SpringApplication.run(StreamAppmasterApplication.class, args);
 	}
 
 }
