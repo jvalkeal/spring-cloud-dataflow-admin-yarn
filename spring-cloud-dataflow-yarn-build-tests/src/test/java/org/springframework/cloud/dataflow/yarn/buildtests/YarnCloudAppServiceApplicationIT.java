@@ -53,10 +53,11 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 		Properties instanceProperties = new Properties();
 		instanceProperties.setProperty("spring.yarn.applicationVersion", "app");
 		instanceProperties.setProperty("spring.cloud.dataflow.yarn.version", getProjectVersion());
+		String[] runArgs = new String[] { "--spring.config.name=stream" };
 		ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
 				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
 		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),
-				"application.properties", instanceProperties, null, initializers);
+				"application.properties", instanceProperties, runArgs, initializers);
 
 		app.afterPropertiesSet();
 		setYarnClient(app.getContext().getBean(YarnClient.class));
@@ -103,10 +104,11 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 		instanceProperties.setProperty("spring.yarn.applicationVersion", "app");
 		instanceProperties.setProperty("spring.cloud.dataflow.yarn.version", getProjectVersion());
 		instanceProperties.setProperty("spring.hadoop.fsUri", fsUri);
+		String[] runArgs = new String[] { "--spring.config.name=stream" };
 		ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
 				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
 		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),
-				"application.properties", instanceProperties, null, initializers);
+				"application.properties", instanceProperties, runArgs, initializers);
 
 		app.afterPropertiesSet();
 		setYarnClient(app.getContext().getBean(YarnClient.class));

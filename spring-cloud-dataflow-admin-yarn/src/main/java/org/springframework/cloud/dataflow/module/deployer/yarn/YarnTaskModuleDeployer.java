@@ -16,9 +16,13 @@
 
 package org.springframework.cloud.dataflow.module.deployer.yarn;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.dataflow.core.ArtifactCoordinates;
 import org.springframework.cloud.dataflow.core.ModuleDefinition;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
@@ -29,6 +33,7 @@ import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppServi
 
 public class YarnTaskModuleDeployer implements ModuleDeployer {
 
+	private static final Logger logger = LoggerFactory.getLogger(YarnTaskModuleDeployer.class);
 	private final YarnCloudAppService yarnCloudAppService;
 
 	public YarnTaskModuleDeployer(YarnCloudAppService yarnCloudAppService) {
@@ -37,7 +42,6 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 
 	@Override
 	public ModuleDeploymentId deploy(ModuleDeploymentRequest request) {
-		int count = request.getCount();
 		ArtifactCoordinates coordinates = request.getCoordinates();
 		ModuleDefinition definition = request.getDefinition();
 		ModuleDeploymentId id = ModuleDeploymentId.fromModuleDefinition(definition);
@@ -45,14 +49,26 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 		Map<String, String> definitionParameters = definition.getParameters();
 		Map<String, String> deploymentProperties = request.getDeploymentProperties();
 
+		logger.info("deploying request for definition: " + definition);
+		logger.info("deploying module: " + module);
+		logger.info("definitionParameters: " + definitionParameters);
+		logger.info("deploymentProperties: " + deploymentProperties);
+
+		ArrayList<String> contextRunArgs = new ArrayList<String>();
+		contextRunArgs.add("--spring.yarn.client.launchcontext.arguments.--dataflow.module.coordinates=" + module);
+		for (Entry<String, String> entry : definitionParameters.entrySet()) {
+			contextRunArgs.add("--spring.yarn.client.launchcontext.arguments.--dataflow.module.parameters." + entry.getKey() + ".=" + entry.getValue());
+		}
+
 		yarnCloudAppService.pushApplication("app", CloudAppType.TASK);
-		yarnCloudAppService.submitApplication("app", CloudAppType.TASK);
+		yarnCloudAppService.submitApplication("app", CloudAppType.TASK, contextRunArgs);
 
 		return id;
 	}
 
 	@Override
 	public void undeploy(ModuleDeploymentId id) {
+		// kill yarn app if we find matching instance
 	}
 
 	@Override

@@ -14,10 +14,6 @@ spring:
         - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-taskappmaster-*.jar"
         - "file:target/spring-cloud-dataflow-yarn-build-tests/spring-cloud-dataflow-yarn-taskcontainer-*.jar"
       launchcontext:
-        arguments:
-          --dataflow.module.coordinates: org.springframework.cloud.task.module:timestamp-task:jar:exec:1.0.0.BUILD-SNAPSHOT
-          --dataflow.module.parameters.arg1: xxxval1
-          --dataflow.module.parameters.arg2: xxxval2
         archiveFile: spring-cloud-dataflow-yarn-taskappmaster-${spring.cloud.dataflow.yarn.version}.jar
       resource:
         memory: 1g

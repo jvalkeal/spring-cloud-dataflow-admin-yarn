@@ -19,7 +19,6 @@ package org.springframework.cloud.dataflow.yarn.taskappmaster;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.dataflow.yarn.common.DataflowModuleYarnProperties;
@@ -41,9 +40,10 @@ public class DataFlowTaskAppmaster extends StaticAppmaster {
 	public List<String> getCommands() {
 		List<String> list = new ArrayList<String>(super.getCommands());
 		list.add(Math.max(list.size() - 2, 0), "--dataflow.module.coordinates=" + dataflowModuleYarnProperties.getCoordinates());
-		Set<Entry<String, String>> entrySet = dataflowModuleYarnProperties.getParameters().entrySet();
-		for (Entry<String, String> entry : entrySet) {
-			list.add(Math.max(list.size() - 2, 0), "--dataflow.module.parameters." + entry.getKey() + "=" + entry.getValue());
+		if (dataflowModuleYarnProperties.getParameters() != null) {
+			for (Entry<String, String> entry : dataflowModuleYarnProperties.getParameters().entrySet()) {
+				list.add(Math.max(list.size() - 2, 0), "--dataflow.module.parameters." + entry.getKey() + "=" + entry.getValue());
+			}
 		}
 		return list;
 	}

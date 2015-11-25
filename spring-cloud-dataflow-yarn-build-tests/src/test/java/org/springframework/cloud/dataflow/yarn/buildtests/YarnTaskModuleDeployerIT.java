@@ -24,7 +24,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +36,7 @@ import org.springframework.yarn.test.support.ContainerLogUtils;
 
 public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 
-	private static final String GROUP_ID = "org.springframework.cloud.stream.module";
+	private static final String GROUP_ID = "org.springframework.cloud.task.module";
 	private static final String VERSION = "1.0.0.BUILD-SNAPSHOT";
 	private AnnotationConfigApplicationContext context;
 
@@ -60,7 +60,7 @@ public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 	@Test
 	public void testTaskTimestamp() throws Exception {
 		assertThat(context.containsBean("taskModuleDeployer"), is(true));
-		assertThat(context.getBean("taskModuleDeployer"), instanceOf(YarnModuleDeployer.class));
+		assertThat(context.getBean("taskModuleDeployer"), instanceOf(YarnTaskModuleDeployer.class));
 		ModuleDeployer deployer = context.getBean("taskModuleDeployer", ModuleDeployer.class);
 		YarnCloudAppService yarnCloudAppService = context.getBean(YarnCloudAppService.class);
 
@@ -78,14 +78,9 @@ public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 		ModuleDeploymentRequest task = new ModuleDeploymentRequest(taskDefinition, taskCoordinates);
 
 		ModuleDeploymentId taskId = deployer.deploy(task);
+		assertThat(taskId, notNullValue());
 		ApplicationId applicationId = assertWaitApp(2, TimeUnit.MINUTES, yarnCloudAppService);
-		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started TimeSourceApplication");
-
-//		deployer.undeploy(taskId);
-//		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "stopped outbound.ticktock.0");
-
-		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances();
-		assertThat(instances.size(), is(1));
+		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "Started TimestampTaskApplication");
 
 		List<Resource> resources = ContainerLogUtils.queryContainerLogs(
 				getYarnCluster(), applicationId);
@@ -140,7 +135,7 @@ public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 			ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
 					new HadoopConfigurationInjectingInitializer(configuration) };
 			String dataflowVersion = environment.getProperty("projectVersion");
-			return new DefaultYarnCloudAppService(null, dataflowVersion, initializers);
+			return new DefaultYarnCloudAppService(dataflowVersion, initializers);
 		}
 
 	}

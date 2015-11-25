@@ -37,9 +37,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class YarnAdminConfiguration {
 
-	@Value("${spring.cloud.bootstrap.name:admin}")
-	private String bootstrapName;
-
 	@Value("${spring.cloud.dataflow.yarn.version}")
 	private String dataflowVersion;
 
@@ -60,7 +57,7 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public YarnCloudAppService yarnCloudAppService() {
-		return new DefaultYarnCloudAppService(bootstrapName, dataflowVersion);
+		return new DefaultYarnCloudAppService(dataflowVersion);
 	}
 
 	@Bean

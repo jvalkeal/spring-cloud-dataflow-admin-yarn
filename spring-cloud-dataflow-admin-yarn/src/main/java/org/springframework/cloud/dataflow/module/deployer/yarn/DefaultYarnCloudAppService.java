@@ -15,6 +15,7 @@
  */
 package org.springframework.cloud.dataflow.module.deployer.yarn;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.yarn.support.console.ContainerClusterReport.ClustersInfoReportData;
 
@@ -40,27 +42,23 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 
 	private static final Logger logger = LoggerFactory.getLogger(DefaultYarnCloudAppService.class);
 	private final ApplicationContextInitializer<?>[] initializers;
-	private final String bootstrapName;
 	private final String dataflowVersion;
 	private final Map<String, YarnCloudAppServiceApplication> appCache = new HashMap<String, YarnCloudAppServiceApplication>();
 
 	/**
 	 *
-	 * @param bootstrapName
 	 * @param dataflowVersion
 	 */
-	public DefaultYarnCloudAppService(String bootstrapName, String dataflowVersion) {
-		this(bootstrapName, dataflowVersion, null);
+	public DefaultYarnCloudAppService(String dataflowVersion) {
+		this(dataflowVersion, null);
 	}
 
 	/**
 	 *
-	 * @param bootstrapName
 	 * @param dataflowVersion
 	 * @param initializers
 	 */
-	public DefaultYarnCloudAppService(String bootstrapName, String dataflowVersion, ApplicationContextInitializer<?>[] initializers) {
-		this.bootstrapName = bootstrapName;
+	public DefaultYarnCloudAppService(String dataflowVersion, ApplicationContextInitializer<?>[] initializers) {
 		this.dataflowVersion = dataflowVersion;
 		this.initializers = initializers;
 	}
@@ -81,12 +79,17 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 
 	@Override
 	public void pushApplication(String appVersion, CloudAppType cloudAppType) {
-		getApp(appVersion, dataflowVersion, cloudAppType).pushApplication(appVersion);
+		getApp(appVersion, dataflowVersion, cloudAppType, null).pushApplication(appVersion);
 	}
 
 	@Override
 	public String submitApplication(String appVersion, CloudAppType cloudAppType) {
-		return getApp(appVersion, dataflowVersion, cloudAppType).submitApplication(appVersion);
+		return submitApplication(appVersion, cloudAppType, null);
+	}
+
+	@Override
+	public String submitApplication(String appVersion, CloudAppType cloudAppType, List<String> contextRunArgs) {
+		return getApp(appVersion, dataflowVersion, cloudAppType, contextRunArgs).submitApplication(appVersion);
 	}
 
 	@Override
@@ -146,11 +149,12 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	}
 
 	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion) {
-		return getApp(appVersion, dataflowVersion, CloudAppType.STREAM);
+		return getApp(appVersion, dataflowVersion, CloudAppType.STREAM, null);
 	}
 
-	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType) {
-		YarnCloudAppServiceApplication app = appCache.get(appVersion);
+	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType, List<String> contextRunArgs) {
+		String cacheKey = appVersion + StringUtils.collectionToCommaDelimitedString(contextRunArgs);
+		YarnCloudAppServiceApplication app = appCache.get(cacheKey);
 		if (app == null) {
 
 			Properties configFileProperties = new Properties();
@@ -162,14 +166,14 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 			}
 
 			logger.info("Bootsrapping YarnCloudAppServiceApplication with {}", cloudAppType.toString().toLowerCase());
-			String[] runArgs = new String[] { "--spring.config.name=" + cloudAppType.toString().toLowerCase()};
-//			String[] runArgs = null;
-//			if (StringUtils.hasText(bootstrapName)) {
-//				runArgs = new String[] { "--spring.config.name=" + cloudAppType.toString().toLowerCase()};
-//			}
+			ArrayList<String> runArgs = new ArrayList<String>();
+			runArgs.add("--spring.config.name=" + cloudAppType.toString().toLowerCase());
+			if (!ObjectUtils.isEmpty(contextRunArgs)) {
+				runArgs.addAll(contextRunArgs);
+			}
 
 			app = new YarnCloudAppServiceApplication(appVersion, dataflowVersion, "application.properties", configFileProperties,
-					runArgs, initializers);
+					runArgs.toArray(new String[0]), initializers);
 			try {
 				app.afterPropertiesSet();
 			} catch (Exception e) {

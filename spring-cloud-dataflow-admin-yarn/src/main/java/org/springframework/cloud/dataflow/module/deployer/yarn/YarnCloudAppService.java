@@ -17,6 +17,7 @@
 package org.springframework.cloud.dataflow.module.deployer.yarn;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -59,6 +60,18 @@ public interface YarnCloudAppService {
 	 * @return the application id
 	 */
 	String submitApplication(String appVersion, CloudAppType cloudAppType);
+
+	/**
+	 * Submit new application instance into yarn. Prior to calling a new
+	 * submit operation, application has to exist in hdfs which can be done
+	 * i.e. using {@link #pushApplication(String)} method.
+	 *
+	 * @param appVersion the app version
+	 * @param cloudAppType the cloud app type
+	 * @param contextRunArgs the context run arguments
+	 * @return the application id
+	 */
+	String submitApplication(String appVersion, CloudAppType cloudAppType, List<String> contextRunArgs);
 
 	/**
 	 * Creates the container cluster.

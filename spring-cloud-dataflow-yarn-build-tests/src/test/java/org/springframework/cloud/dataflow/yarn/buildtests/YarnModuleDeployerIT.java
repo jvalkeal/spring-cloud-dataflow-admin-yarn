@@ -256,7 +256,7 @@ public class YarnModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 			ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
 					new HadoopConfigurationInjectingInitializer(configuration) };
 			String dataflowVersion = environment.getProperty("projectVersion");
-			return new DefaultYarnCloudAppService(null, dataflowVersion, initializers);
+			return new DefaultYarnCloudAppService(dataflowVersion, initializers);
 		}
 
 	}
