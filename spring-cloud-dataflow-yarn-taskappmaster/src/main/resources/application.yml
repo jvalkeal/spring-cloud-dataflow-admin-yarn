@@ -14,7 +14,6 @@ spring:
       yarn:
         version: "@project.version@"
   yarn:
-    appName: spring-cloud-dataflow-yarn-task-app
     applicationBaseDir: /dataflow/apps/
     appmaster:
       containerCount: 1

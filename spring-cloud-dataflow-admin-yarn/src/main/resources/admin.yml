@@ -1,3 +1,6 @@
+logging:
+  level:
+    org.springframework.cloud.dataflow.module.deployer.yarn: DEBUG
 server:
   port: 9393
 management:

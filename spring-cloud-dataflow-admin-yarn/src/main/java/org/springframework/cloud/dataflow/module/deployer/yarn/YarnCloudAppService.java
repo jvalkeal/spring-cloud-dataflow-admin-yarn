@@ -150,11 +150,13 @@ public interface YarnCloudAppService {
 
 		private final String applicationId;
 		private final String name;
+		private final String state;
 		private final String address;
 
-		public CloudAppInstanceInfo(String applicationId, String name, String address) {
+		public CloudAppInstanceInfo(String applicationId, String name, String state, String address) {
 			this.applicationId = applicationId;
 			this.name = name;
+			this.state = state;
 			this.address = address;
 		}
 
@@ -164,6 +166,10 @@ public interface YarnCloudAppService {
 
 		public String getName() {
 			return name;
+		}
+
+		public String getState() {
+			return state;
 		}
 
 		public String getAddress() {

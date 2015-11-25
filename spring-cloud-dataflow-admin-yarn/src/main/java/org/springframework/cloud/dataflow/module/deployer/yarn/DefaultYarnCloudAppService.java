@@ -155,8 +155,8 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType, List<String> contextRunArgs) {
 		String cacheKey = appVersion + StringUtils.collectionToCommaDelimitedString(contextRunArgs);
 		YarnCloudAppServiceApplication app = appCache.get(cacheKey);
+		logger.info("Cachekey {} found YarnCloudAppServiceApplication {}", cacheKey, app);
 		if (app == null) {
-
 			Properties configFileProperties = new Properties();
 			if (StringUtils.hasText(appVersion)) {
 				configFileProperties.setProperty("spring.yarn.applicationVersion", appVersion);
@@ -179,7 +179,8 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 			} catch (Exception e) {
 				throw new RuntimeException("Error initializing YarnCloudAppServiceApplication", e);
 			}
-			appCache.put(appVersion, app);
+			logger.info("Set cache with key {} and YarnCloudAppServiceApplication {}", cacheKey, app);
+			appCache.put(cacheKey, app);
 		}
 		return app;
 	}
