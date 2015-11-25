@@ -18,6 +18,8 @@ package org.springframework.cloud.dataflow.yarn.taskcontainer;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -35,6 +37,8 @@ import org.springframework.util.Assert;
 @EnableConfigurationProperties(DataflowModuleYarnProperties.class)
 public class TaskContainerApplication implements CommandLineRunner {
 
+	private static final Logger logger = LoggerFactory.getLogger(TaskContainerApplication.class);
+
 	@Autowired
 	private ModuleLauncher moduleLauncher;
 
@@ -44,6 +48,7 @@ public class TaskContainerApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
 		Assert.hasText(dataflowModuleYarnProperties.getCoordinates(), "Module coordinates must be set");
+		logger.info("Launching task module with {}", dataflowModuleYarnProperties);
 		moduleLauncher.launch(Arrays.asList(new ModuleLaunchRequest(
 				dataflowModuleYarnProperties.getCoordinates(),
 				dataflowModuleYarnProperties.getParameters())));

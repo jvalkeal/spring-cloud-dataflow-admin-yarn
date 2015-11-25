@@ -44,7 +44,7 @@ public class DataflowModuleYarnProperties {
 
 	@Override
 	public String toString() {
-		return "DataflowYarnProperties [coordinates=" + coordinates + ", parameters=" + parameters + "]";
+		return "DataflowModuleYarnProperties [coordinates=" + coordinates + ", parameters=" + parameters + "]";
 	}
 
 }
