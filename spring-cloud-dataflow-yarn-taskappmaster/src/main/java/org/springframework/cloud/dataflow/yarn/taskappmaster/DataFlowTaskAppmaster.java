@@ -19,16 +19,19 @@ package org.springframework.cloud.dataflow.yarn.taskappmaster;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.dataflow.yarn.common.DataflowModuleYarnProperties;
 import org.springframework.util.Assert;
-import org.springframework.yarn.am.StaticAppmaster;
+import org.springframework.yarn.am.StaticEventingAppmaster;
 
-public class DataFlowTaskAppmaster extends StaticAppmaster {
+public class DataFlowTaskAppmaster extends StaticEventingAppmaster {
 
 	@Autowired
 	private DataflowModuleYarnProperties dataflowModuleYarnProperties;
+
+	private final AtomicBoolean exitCallGuard = new AtomicBoolean();
 
 	@Override
 	protected void onInit() throws Exception {
@@ -46,6 +49,14 @@ public class DataFlowTaskAppmaster extends StaticAppmaster {
 			}
 		}
 		return list;
+	}
+
+	@Override
+	protected void notifyCompleted() {
+		// fixed in SHDP-531
+		if (exitCallGuard.compareAndSet(false, true)) {
+			super.notifyCompleted();
+		}
 	}
 
 }

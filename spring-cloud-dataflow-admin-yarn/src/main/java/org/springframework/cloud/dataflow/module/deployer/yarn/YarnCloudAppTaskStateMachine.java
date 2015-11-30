@@ -230,7 +230,7 @@ public class YarnCloudAppTaskStateMachine {
 			for (int i = 0; i < 60; i++) {
 				try {
 					if (isRunning()) {
-						return;
+						break;
 					}
 					else {
 						Thread.sleep(1000);
@@ -251,6 +251,8 @@ public class YarnCloudAppTaskStateMachine {
 				context.getStateMachine().sendEvent(
 						MessageBuilder.withPayload(Events.ERROR)
 								.setHeader(HEADER_ERROR, "failed starting app " + error).build());
+			} else {
+				context.getStateMachine().sendEvent(Events.CONTINUE);
 			}
 		}
 
