@@ -19,6 +19,8 @@ package org.springframework.cloud.dataflow.module.deployer.yarn;
 import java.util.Collection;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInfo;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
@@ -41,6 +43,7 @@ import org.springframework.util.StringUtils;
  */
 public class YarnCloudAppStreamStateMachine {
 
+	private static final Logger logger = LoggerFactory.getLogger(YarnCloudAppStreamStateMachine.class);
 	static final String VAR_APP_VERSION = "appVersion";
 	static final String VAR_APPLICATION_ID = "applicationId";
 	static final String HEADER_APP_VERSION = "appVersion";
@@ -244,8 +247,11 @@ public class YarnCloudAppStreamStateMachine {
 		public void execute(StateContext<States, Events> context) {
 			Collection<CloudAppInstanceInfo> appInstanceInfos = yarnCloudAppService.getInstances();
 			for (CloudAppInstanceInfo appInstanceInfo : appInstanceInfos) {
-				if (appInstanceInfo.getAddress().contains("http")) {
+				logger.debug("Checking instance {}", appInstanceInfo);
+				if (appInstanceInfo.getName().equals("spring-cloud-dataflow-yarn-app") && appInstanceInfo.getState().equals("RUNNING")
+						&& appInstanceInfo.getAddress().contains("http")) {
 					context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, appInstanceInfo.getApplicationId());
+					logger.debug("Using instance {}", appInstanceInfo);
 					break;
 				}
 			}

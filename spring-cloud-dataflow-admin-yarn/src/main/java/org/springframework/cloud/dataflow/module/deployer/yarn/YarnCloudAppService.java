@@ -183,6 +183,12 @@ public interface YarnCloudAppService {
 			return address;
 		}
 
+		@Override
+		public String toString() {
+			return "CloudAppInstanceInfo [applicationId=" + applicationId + ", name=" + name + ", state=" + state + ", address=" + address
+					+ "]";
+		}
+
 	}
 
 	public enum CloudAppType {
