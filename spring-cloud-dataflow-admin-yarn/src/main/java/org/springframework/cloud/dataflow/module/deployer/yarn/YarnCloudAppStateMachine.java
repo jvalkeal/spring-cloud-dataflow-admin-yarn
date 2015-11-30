@@ -21,6 +21,7 @@ import java.util.Map;
 
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInfo;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateContext;
@@ -229,7 +230,7 @@ public class YarnCloudAppStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String appVersion = (String) context.getMessageHeader(HEADER_APP_VERSION);
-			yarnCloudAppService.pushApplication(appVersion);
+			yarnCloudAppService.pushApplication(appVersion, CloudAppType.STREAM);
 		}
 	}
 
@@ -272,7 +273,7 @@ public class YarnCloudAppStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String appVersion = (String) context.getMessageHeader(HEADER_APP_VERSION);
-			String applicationId = yarnCloudAppService.submitApplication(appVersion);
+			String applicationId = yarnCloudAppService.submitApplication(appVersion, CloudAppType.STREAM);
 			context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, applicationId);
 
 			// TODO: for now just loop until we get proper handling

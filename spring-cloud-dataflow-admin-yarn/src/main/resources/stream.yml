@@ -1,0 +1,23 @@
+spring:
+  main:
+    show_banner: false
+  cloud:
+    dataflow:
+      yarn:
+        version: "@project.version@"
+  yarn:
+    appType: DATAFLOW
+    appName: spring-cloud-dataflow-yarn-app
+    applicationBaseDir: /dataflow/apps/
+    client:
+      clientClass: org.springframework.yarn.client.DefaultApplicationYarnClient
+      files:
+        - "file:${dataflow.yarn.app.appmaster.path:lib}/spring-cloud-dataflow-yarn-streamappmaster-*.jar"
+        - "file:${dataflow.yarn.app.container.path:lib}/spring-cloud-dataflow-yarn-streamcontainer-*.jar"
+        - "file:${dataflow.yarn.app.config.path:config}/servers.yml"
+      launchcontext:
+        arguments:
+          -Dspring.config.location: ${dataflow.yarn.app.config.path:config}/servers.yml
+        archiveFile: spring-cloud-dataflow-yarn-streamappmaster-${spring.cloud.dataflow.yarn.version}.jar
+      resource:
+        memory: 1g

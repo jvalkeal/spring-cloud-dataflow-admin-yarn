@@ -68,7 +68,7 @@ import org.springframework.yarn.support.console.ContainerClusterReport.ClustersI
  * from 'org.springframework.yarn.boot.app'. Allows to instantiate context only
  * once making individual command execution much faster still providing all
  * goodies from boot.
- * 
+ *
  * @author Janne Valkealahti
  *
  */
@@ -94,7 +94,7 @@ public class YarnCloudAppServiceApplication implements InitializingBean, Disposa
 			appProperties.setProperty("spring.yarn.applicationVersion", applicationVersion);
 		}
 		if (StringUtils.hasText(dataflowVersion)) {
-			appProperties.setProperty("spring.cloud.dataflow.yarn.version", dataflowVersion);			
+			appProperties.setProperty("spring.cloud.dataflow.yarn.version", dataflowVersion);
 		}
 		if (StringUtils.hasText(configFileName) && configFileProperties != null) {
 			configFilesContents.put(configFileName, configFileProperties);
@@ -164,9 +164,9 @@ public class YarnCloudAppServiceApplication implements InitializingBean, Disposa
 
 	public Collection<CloudAppInstanceInfo> getSubmittedApplications() {
 		List<CloudAppInstanceInfo> appIds = new ArrayList<CloudAppInstanceInfo>();
-		for (ApplicationReport report : yarnClient.listRunningApplications("DATAFLOW")) {
+		for (ApplicationReport report : yarnClient.listApplications("DATAFLOW")) {
 			appIds.add(new CloudAppInstanceInfo(report.getApplicationId().toString(), report.getName(),
-					report.getOriginalTrackingUrl()));
+					report.getYarnApplicationState().toString(), report.getOriginalTrackingUrl()));
 		}
 		return appIds;
 	}

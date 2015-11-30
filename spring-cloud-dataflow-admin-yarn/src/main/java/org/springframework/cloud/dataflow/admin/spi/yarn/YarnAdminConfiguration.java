@@ -21,7 +21,8 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleDeployer;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.task.TaskExecutor;
@@ -36,21 +37,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 public class YarnAdminConfiguration {
 
-	@Value("${spring.cloud.bootstrap.name:admin}")
-	private String bootstrapName;
-
 	@Value("${spring.cloud.dataflow.yarn.version}")
 	private String dataflowVersion;
 
 	@Bean
 	public ModuleDeployer processModuleDeployer() throws Exception {
-		return new YarnModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine());
+		return new YarnStreamModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine());
 	}
 
 	@Bean
 	public ModuleDeployer taskModuleDeployer() throws Exception {
-		// TODO: not yet supported but using same deployer for admin not to fail
-		return new YarnModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine(false));
+		return new YarnTaskModuleDeployer(yarnCloudAppService());
 	}
 
 	@Bean
@@ -60,7 +57,7 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public YarnCloudAppService yarnCloudAppService() {
-		return new DefaultYarnCloudAppService(bootstrapName, dataflowVersion);
+		return new DefaultYarnCloudAppService(dataflowVersion);
 	}
 
 	@Bean
