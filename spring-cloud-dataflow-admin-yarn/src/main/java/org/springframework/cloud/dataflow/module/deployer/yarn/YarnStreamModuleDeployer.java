@@ -30,8 +30,8 @@ import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine.Events;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine.States;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStreamStateMachine.Events;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStreamStateMachine.States;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
@@ -82,11 +82,11 @@ public class YarnStreamModuleDeployer implements ModuleDeployer {
 		// TODO: using default app name "app" until we start to customise
 		//       via deploymentProperties
 		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
-				.setHeader(YarnCloudAppStateMachine.HEADER_APP_VERSION, "app")
-				.setHeader(YarnCloudAppStateMachine.HEADER_CLUSTER_ID, clusterId)
-				.setHeader(YarnCloudAppStateMachine.HEADER_COUNT, count)
-				.setHeader(YarnCloudAppStateMachine.HEADER_MODULE, module)
-				.setHeader(YarnCloudAppStateMachine.HEADER_DEFINITION_PARAMETERS, definitionParameters)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "app")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, clusterId)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_COUNT, count)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, module)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_DEFINITION_PARAMETERS, definitionParameters)
 				.build();
 
 		stateMachine.sendEvent(message);
@@ -97,7 +97,7 @@ public class YarnStreamModuleDeployer implements ModuleDeployer {
 	public void undeploy(ModuleDeploymentId id) {
 		String clusterId = moduleDeploymentIdToClusterId(id);
 		Message<Events> message = MessageBuilder.withPayload(Events.UNDEPLOY)
-				.setHeader(YarnCloudAppStateMachine.HEADER_CLUSTER_ID, clusterId)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, clusterId)
 				.build();
 		stateMachine.sendEvent(message);
 	}

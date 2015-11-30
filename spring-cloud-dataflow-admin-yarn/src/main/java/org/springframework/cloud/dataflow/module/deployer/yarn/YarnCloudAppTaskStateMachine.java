@@ -17,7 +17,7 @@
 package org.springframework.cloud.dataflow.module.deployer.yarn;
 
 import java.util.Collection;
-import java.util.Map;
+import java.util.List;
 
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInfo;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
@@ -39,15 +39,16 @@ import org.springframework.util.StringUtils;
  *
  * @author Janne Valkealahti
  */
-public class YarnCloudAppStateMachine {
+public class YarnCloudAppTaskStateMachine {
 
 	static final String VAR_APP_VERSION = "appVersion";
 	static final String VAR_APPLICATION_ID = "applicationId";
 	static final String HEADER_APP_VERSION = "appVersion";
-	static final String HEADER_CLUSTER_ID = "clusterId";
-	static final String HEADER_COUNT = "count";
+//	static final String HEADER_CLUSTER_ID = "clusterId";
+//	static final String HEADER_COUNT = "count";
 	static final String HEADER_MODULE = "module";
 	static final String HEADER_DEFINITION_PARAMETERS = "definitionParameters";
+	static final String HEADER_CONTEXT_RUN_ARGS = "contextRunArgs";
 	static final String HEADER_ERROR = "error";
 
 	private final YarnCloudAppService yarnCloudAppService;
@@ -59,7 +60,7 @@ public class YarnCloudAppStateMachine {
 	 * @param yarnCloudAppService the yarn cloud app service
 	 * @param taskExecutor the task executor
 	 */
-	public YarnCloudAppStateMachine(YarnCloudAppService yarnCloudAppService, TaskExecutor taskExecutor) {
+	public YarnCloudAppTaskStateMachine(YarnCloudAppService yarnCloudAppService, TaskExecutor taskExecutor) {
 		Assert.notNull(yarnCloudAppService, "YarnCloudAppService must be set");
 		Assert.notNull(taskExecutor, "TaskExecutor must be set");
 		this.yarnCloudAppService = yarnCloudAppService;
@@ -106,17 +107,11 @@ public class YarnCloudAppStateMachine {
 					.state(States.CHECKAPP, new CheckAppAction(), null)
 					.choice(States.PUSHAPPCHOICE)
 					.state(States.PUSHAPP, new PushAppAction(), null)
-					.state(States.CHECKINSTANCE, new CheckInstanceAction(), null)
-					.choice(States.STARTINSTANCECHOICE)
 					.state(States.STARTINSTANCE, new StartInstanceAction(), null)
-					.state(States.CREATECLUSTER, new CreateClusterAction(), null)
-					.state(States.STARTCLUSTER, new StartClusterAction(), null)
 					.and()
 				.withStates()
 					.parent(States.UNDEPLOYMODULE)
-					.initial(States.STOPCLUSTER)
-					.state(States.STOPCLUSTER, new StopClusterAction(), null)
-					.state(States.DESTROYCLUSTER, new DestroyClusterAction(), null);
+					.initial(States.STOPTINSTANCE);
 
 		builder.configureTransitions()
 			.withExternal()
@@ -145,27 +140,10 @@ public class YarnCloudAppStateMachine {
 			.withChoice()
 				.source(States.PUSHAPPCHOICE)
 				.first(States.PUSHAPP, new PushAppGuard())
-				.last(States.CHECKINSTANCE)
+				.last(States.STARTINSTANCE)
 				.and()
 			.withExternal()
-				.source(States.PUSHAPP).target(States.CHECKINSTANCE)
-				.and()
-			.withExternal()
-				.source(States.CHECKINSTANCE).target(States.STARTINSTANCECHOICE)
-				.and()
-			.withChoice()
-				.source(States.STARTINSTANCECHOICE)
-				.first(States.STARTINSTANCE, new StartInstanceGuard())
-				.last(States.CREATECLUSTER)
-				.and()
-			.withExternal()
-				.source(States.STARTINSTANCE).target(States.CREATECLUSTER)
-				.and()
-			.withExternal()
-				.source(States.CREATECLUSTER).target(States.STARTCLUSTER)
-				.and()
-			.withExternal()
-				.source(States.STOPCLUSTER).target(States.DESTROYCLUSTER);
+				.source(States.PUSHAPP).target(States.STARTINSTANCE);
 
 		return builder.build();
 	}
@@ -230,38 +208,7 @@ public class YarnCloudAppStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String appVersion = (String) context.getMessageHeader(HEADER_APP_VERSION);
-			yarnCloudAppService.pushApplication(appVersion, CloudAppType.STREAM);
-		}
-	}
-
-	/**
-	 * {@link Action} which queries {@link YarnCloudAppService} for existing
-	 * running instances.
-	 */
-	private class CheckInstanceAction implements Action<States, Events> {
-
-		@Override
-		public void execute(StateContext<States, Events> context) {
-			Collection<CloudAppInstanceInfo> appInstanceInfos = yarnCloudAppService.getInstances();
-			for (CloudAppInstanceInfo appInstanceInfo : appInstanceInfos) {
-				if (appInstanceInfo.getAddress().contains("http")) {
-					context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, appInstanceInfo.getApplicationId());
-					break;
-				}
-			}
-
-		}
-	}
-
-	/**
-	 * {@link Guard} which protects state {@code STARTINSTANCE} in choice state
-	 * {@code STARTINSTANCECHOICE}.
-	 */
-	private class StartInstanceGuard implements Guard<States, Events> {
-
-		@Override
-		public boolean evaluate(StateContext<States, Events> context) {
-			return !context.getExtendedState().getVariables().containsKey(VAR_APPLICATION_ID);
+			yarnCloudAppService.pushApplication(appVersion, CloudAppType.TASK);
 		}
 	}
 
@@ -273,7 +220,8 @@ public class YarnCloudAppStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String appVersion = (String) context.getMessageHeader(HEADER_APP_VERSION);
-			String applicationId = yarnCloudAppService.submitApplication(appVersion, CloudAppType.STREAM);
+			List<String> contextRunArgs = (List<String>) context.getMessageHeader(HEADER_CONTEXT_RUN_ARGS);
+			String applicationId = yarnCloudAppService.submitApplication(appVersion, CloudAppType.TASK, contextRunArgs);
 			context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, applicationId);
 
 			// TODO: for now just loop until we get proper handling
@@ -317,71 +265,12 @@ public class YarnCloudAppStateMachine {
 	}
 
 	/**
-	 * {@link Action} which creates a new container cluster.
+	 * {@link Action} which stops an application instance.
 	 */
-	private class CreateClusterAction implements Action<States, Events> {
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void execute(StateContext<States, Events> context) {
-			yarnCloudAppService.createCluster(context.getExtendedState().get(VAR_APPLICATION_ID, String.class), context
-					.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class),
-					context.getMessageHeaders().get(HEADER_COUNT, Integer.class),
-					context.getMessageHeaders().get(HEADER_MODULE, String.class),
-					context.getMessageHeaders().get(HEADER_DEFINITION_PARAMETERS, Map.class));
-		}
-	}
-
-	/**
-	 * {@link Action} which starts existing container cluster.
-	 */
-	private class StartClusterAction implements Action<States, Events> {
+	private class StopInstanceAction implements Action<States, Events> {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
-			yarnCloudAppService.startCluster(context.getExtendedState().get(VAR_APPLICATION_ID, String.class), context
-					.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class));
-			context.getStateMachine().sendEvent(Events.CONTINUE);
-		}
-	}
-
-	/**
-	 * {@link Action} which stops existing container cluster.
-	 */
-	private class StopClusterAction implements Action<States, Events> {
-
-		@Override
-		public void execute(StateContext<States, Events> context) {
-			String clusterId = context.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class);
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				for (String cluster : yarnCloudAppService.getClusters(instanceInfo.getApplicationId())) {
-					if (cluster.equals(clusterId)) {
-						yarnCloudAppService.stopCluster(instanceInfo.getApplicationId(), clusterId);
-						return;
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * {@link Action} which destroys existing container cluster.
-	 */
-	private class DestroyClusterAction implements Action<States, Events> {
-
-		@Override
-		public void execute(StateContext<States, Events> context) {
-			String clusterId = context.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class);
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				for (String cluster : yarnCloudAppService.getClusters(instanceInfo.getApplicationId())) {
-					if (cluster.equals(clusterId)) {
-						yarnCloudAppService.destroyCluster(instanceInfo.getApplicationId(), clusterId);
-						context.getStateMachine().sendEvent(Events.CONTINUE);
-						return;
-					}
-				}
-			}
-			context.getStateMachine().sendEvent(Events.CONTINUE);
 		}
 	}
 
@@ -408,29 +297,14 @@ public class YarnCloudAppStateMachine {
 		/** State where application is pushed into hdfs. */
 		PUSHAPP,
 
-		/** State where app instance running status is checked. */
-		CHECKINSTANCE,
-
-		/** Pseudostate where choice to enter {@code STARTINSTANCE} is made. */
-		STARTINSTANCECHOICE,
-
 		/** State where app instance is started. */
 		STARTINSTANCE,
-
-		/** State where container cluster is created. */
-		CREATECLUSTER,
-
-		/** State where container cluster is started. */
-		STARTCLUSTER,
 
 		/** Super state of all other states handling undeployment. */
 		UNDEPLOYMODULE,
 
-		/** State where container cluster is stopped. */
-		STOPCLUSTER,
-
-		/** State where container cluster is destroyed. */
-		DESTROYCLUSTER;
+		/** State where app instance is stopped. */
+		STOPTINSTANCE;
 	}
 
 	/**

@@ -20,7 +20,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStateMachine;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppStreamStateMachine;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppTaskStateMachine;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.annotation.Bean;
@@ -42,17 +43,22 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public ModuleDeployer processModuleDeployer() throws Exception {
-		return new YarnStreamModuleDeployer(yarnCloudAppService(), yarnCloudAppStateMachine().buildStateMachine());
+		return new YarnStreamModuleDeployer(yarnCloudAppService(), yarnCloudAppStreamStateMachine().buildStateMachine());
 	}
 
 	@Bean
 	public ModuleDeployer taskModuleDeployer() throws Exception {
-		return new YarnTaskModuleDeployer(yarnCloudAppService());
+		return new YarnTaskModuleDeployer(yarnCloudAppService(), yarnCloudAppTaskStateMachine().buildStateMachine());
 	}
 
 	@Bean
-	public YarnCloudAppStateMachine yarnCloudAppStateMachine() throws Exception {
-		return new YarnCloudAppStateMachine(yarnCloudAppService(), yarnModuleDeployerTaskExecutor());
+	public YarnCloudAppStreamStateMachine yarnCloudAppStreamStateMachine() throws Exception {
+		return new YarnCloudAppStreamStateMachine(yarnCloudAppService(), yarnModuleDeployerTaskExecutor());
+	}
+
+	@Bean
+	public YarnCloudAppTaskStateMachine yarnCloudAppTaskStateMachine() throws Exception {
+		return new YarnCloudAppTaskStateMachine(yarnCloudAppService(), yarnModuleDeployerTaskExecutor());
 	}
 
 	@Bean

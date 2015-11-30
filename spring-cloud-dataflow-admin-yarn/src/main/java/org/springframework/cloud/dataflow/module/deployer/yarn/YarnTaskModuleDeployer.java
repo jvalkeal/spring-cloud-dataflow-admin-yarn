@@ -32,15 +32,21 @@ import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppTaskStateMachine.Events;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppTaskStateMachine.States;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.statemachine.StateMachine;
 
 public class YarnTaskModuleDeployer implements ModuleDeployer {
 
 	private static final Logger logger = LoggerFactory.getLogger(YarnTaskModuleDeployer.class);
 	private final YarnCloudAppService yarnCloudAppService;
+	private final StateMachine<States, Events> stateMachine;
 
-	public YarnTaskModuleDeployer(YarnCloudAppService yarnCloudAppService) {
+	public YarnTaskModuleDeployer(YarnCloudAppService yarnCloudAppService, StateMachine<States, Events> stateMachine) {
 		this.yarnCloudAppService = yarnCloudAppService;
+		this.stateMachine = stateMachine;
 	}
 
 	@Override
@@ -66,12 +72,23 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 			contextRunArgs.add("--spring.yarn.client.launchcontext.arguments.--dataflow.module.parameters." + entry.getKey() + ".=" + entry.getValue());
 		}
 
-		try {
-			yarnCloudAppService.pushApplication("app", CloudAppType.TASK);
-		} catch (Exception e) {
-			logger.info("app already pushed", e);
-		}
-		yarnCloudAppService.submitApplication("app", CloudAppType.TASK, contextRunArgs);
+		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_APP_VERSION, "app")
+//				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CLUSTER_ID, clusterId)
+//				.setHeader(YarnCloudAppTaskStateMachine.HEADER_COUNT, count)
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_MODULE, module)
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_DEFINITION_PARAMETERS, definitionParameters)
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CONTEXT_RUN_ARGS, contextRunArgs)
+				.build();
+		stateMachine.sendEvent(message);
+
+
+//		try {
+//			yarnCloudAppService.pushApplication("app", CloudAppType.TASK);
+//		} catch (Exception e) {
+//			logger.info("app already pushed", e);
+//		}
+//		yarnCloudAppService.submitApplication("app", CloudAppType.TASK, contextRunArgs);
 
 		return id;
 	}
