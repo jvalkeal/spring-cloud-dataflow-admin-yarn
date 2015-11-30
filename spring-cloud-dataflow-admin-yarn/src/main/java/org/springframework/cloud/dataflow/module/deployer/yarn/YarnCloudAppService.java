@@ -74,6 +74,13 @@ public interface YarnCloudAppService {
 	String submitApplication(String appVersion, CloudAppType cloudAppType, List<String> contextRunArgs);
 
 	/**
+	 * Kill all applications matching given application name.
+	 *
+	 * @param appName the application name
+	 */
+	void killApplications(String appName);
+
+	/**
 	 * Creates the container cluster.
 	 *
 	 * @param yarnApplicationId the yarn application id

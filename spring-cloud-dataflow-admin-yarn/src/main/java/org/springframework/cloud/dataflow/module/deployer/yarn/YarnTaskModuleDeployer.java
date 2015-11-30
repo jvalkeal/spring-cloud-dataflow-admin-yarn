@@ -38,12 +38,23 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.statemachine.StateMachine;
 
+/**
+ * {@link ModuleDeployer} which is launching tasks as Yarn applications.
+ *
+ * @author Janne Valkealahti
+ */
 public class YarnTaskModuleDeployer implements ModuleDeployer {
 
 	private static final Logger logger = LoggerFactory.getLogger(YarnTaskModuleDeployer.class);
 	private final YarnCloudAppService yarnCloudAppService;
 	private final StateMachine<States, Events> stateMachine;
 
+	/**
+	 * Instantiates a new yarn task module deployer.
+	 *
+	 * @param yarnCloudAppService the yarn cloud app service
+	 * @param stateMachine the state machine
+	 */
 	public YarnTaskModuleDeployer(YarnCloudAppService yarnCloudAppService, StateMachine<States, Events> stateMachine) {
 		this.yarnCloudAppService = yarnCloudAppService;
 		this.stateMachine = stateMachine;
@@ -74,29 +85,22 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 
 		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
 				.setHeader(YarnCloudAppTaskStateMachine.HEADER_APP_VERSION, "app")
-//				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CLUSTER_ID, clusterId)
-//				.setHeader(YarnCloudAppTaskStateMachine.HEADER_COUNT, count)
 				.setHeader(YarnCloudAppTaskStateMachine.HEADER_MODULE, module)
 				.setHeader(YarnCloudAppTaskStateMachine.HEADER_DEFINITION_PARAMETERS, definitionParameters)
 				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CONTEXT_RUN_ARGS, contextRunArgs)
 				.build();
 		stateMachine.sendEvent(message);
-
-
-//		try {
-//			yarnCloudAppService.pushApplication("app", CloudAppType.TASK);
-//		} catch (Exception e) {
-//			logger.info("app already pushed", e);
-//		}
-//		yarnCloudAppService.submitApplication("app", CloudAppType.TASK, contextRunArgs);
-
 		return id;
 	}
 
 	@Override
 	public void undeploy(ModuleDeploymentId id) {
-		logger.info("Undeploy request for module {}", id);
-		// kill yarn app if we find matching instance
+		String appName = moduleDeploymentIdToAppName(id);
+		logger.info("Undeploy request for module {}, killing appName {}", id, appName);
+		Message<Events> message = MessageBuilder.withPayload(Events.UNDEPLOY)
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_APP_NAME, appName)
+				.build();
+		stateMachine.sendEvent(message);
 	}
 
 	@Override

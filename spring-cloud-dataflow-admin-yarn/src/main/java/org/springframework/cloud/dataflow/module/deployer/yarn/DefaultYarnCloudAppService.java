@@ -93,6 +93,17 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	}
 
 	@Override
+	public void killApplications(String appName) {
+		YarnCloudAppServiceApplication app = getApp(null, null);
+		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
+		for (CloudAppInstanceInfo info : submittedApplications) {
+			if (info.getName() == appName) {
+				app.killApplication(info.getApplicationId());
+			}
+		}
+	}
+
+	@Override
 	public void createCluster(String yarnApplicationId, String clusterId, int count, String module,
 			Map<String, String> definitionParameters) {
 

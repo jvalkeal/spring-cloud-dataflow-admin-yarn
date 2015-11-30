@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInfo;
-import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.messaging.support.MessageBuilder;
@@ -44,8 +43,7 @@ public class YarnCloudAppTaskStateMachine {
 	static final String VAR_APP_VERSION = "appVersion";
 	static final String VAR_APPLICATION_ID = "applicationId";
 	static final String HEADER_APP_VERSION = "appVersion";
-//	static final String HEADER_CLUSTER_ID = "clusterId";
-//	static final String HEADER_COUNT = "count";
+	static final String HEADER_APP_NAME = "appName";
 	static final String HEADER_MODULE = "module";
 	static final String HEADER_DEFINITION_PARAMETERS = "definitionParameters";
 	static final String HEADER_CONTEXT_RUN_ARGS = "contextRunArgs";
@@ -111,7 +109,8 @@ public class YarnCloudAppTaskStateMachine {
 					.and()
 				.withStates()
 					.parent(States.UNDEPLOYMODULE)
-					.initial(States.STOPTINSTANCE);
+					.initial(States.STOPINSTANCE)
+					.state(States.STOPINSTANCE, new StopInstanceAction(), null);
 
 		builder.configureTransitions()
 			.withExternal()
@@ -125,6 +124,12 @@ public class YarnCloudAppTaskStateMachine {
 			.withExternal()
 				.source(States.UNDEPLOYMODULE).target(States.READY)
 				.event(Events.CONTINUE)
+				.and()
+			.withExternal()
+				.source(States.STARTINSTANCE).target(States.READY)
+				.and()
+			.withExternal()
+				.source(States.STOPINSTANCE).target(States.READY)
 				.and()
 			.withExternal()
 				.source(States.READY).target(States.DEPLOYMODULE)
@@ -220,50 +225,15 @@ public class YarnCloudAppTaskStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String appVersion = (String) context.getMessageHeader(HEADER_APP_VERSION);
+
+			// we control type so casting is safe
+			@SuppressWarnings("unchecked")
 			List<String> contextRunArgs = (List<String>) context.getMessageHeader(HEADER_CONTEXT_RUN_ARGS);
+
 			String applicationId = yarnCloudAppService.submitApplication(appVersion, CloudAppType.TASK, contextRunArgs);
 			context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, applicationId);
-
-			// TODO: for now just loop until we get proper handling
-			//       via looping in a state machine itself.
-			Exception error = null;
-			for (int i = 0; i < 60; i++) {
-				try {
-					if (isRunning()) {
-						break;
-					}
-					else {
-						Thread.sleep(1000);
-					}
-				}
-				catch (InterruptedException e) {
-					error = e;
-					Thread.currentThread().interrupt();
-					break;
-				}
-				catch (Exception e) {
-					error = e;
-					break;
-				}
-			}
-			// TODO: we don't yet handle errors
-			if (error != null) {
-				context.getStateMachine().sendEvent(
-						MessageBuilder.withPayload(Events.ERROR)
-								.setHeader(HEADER_ERROR, "failed starting app " + error).build());
-			} else {
-				context.getStateMachine().sendEvent(Events.CONTINUE);
-			}
 		}
 
-		private boolean isRunning() {
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				if (instanceInfo.getAddress().contains("http")) {
-					return true;
-				}
-			}
-			return false;
-		}
 	}
 
 	/**
@@ -273,6 +243,9 @@ public class YarnCloudAppTaskStateMachine {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
+			// we don't have no way to match running task instance
+			String appName = (String) context.getMessageHeader(HEADER_APP_NAME);
+			yarnCloudAppService.killApplications(appName);
 		}
 	}
 
@@ -306,7 +279,7 @@ public class YarnCloudAppTaskStateMachine {
 		UNDEPLOYMODULE,
 
 		/** State where app instance is stopped. */
-		STOPTINSTANCE;
+		STOPINSTANCE;
 	}
 
 	/**

@@ -308,8 +308,11 @@ public class YarnCloudAppStreamStateMachineTests {
 
 		@Override
 		public String submitApplication(String appVersion, CloudAppType cloudAppType, List<String> contextRunArgs) {
-			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public void killApplications(String appName) {
 		}
 
 		@Override

@@ -23,7 +23,6 @@ import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.cloud.dataflow.core.ArtifactCoordinates;
 import org.springframework.cloud.dataflow.core.ModuleDefinition;
 import org.springframework.cloud.dataflow.core.ModuleDeploymentId;
@@ -53,7 +52,7 @@ public class YarnStreamModuleDeployer implements ModuleDeployer {
 	private final StateMachine<States, Events> stateMachine;
 
 	/**
-	 * Instantiates a new yarn module deployer.
+	 * Instantiates a new yarn stream module deployer.
 	 *
 	 * @param yarnCloudAppService the yarn cloud app service
 	 * @param stateMachine the state machine

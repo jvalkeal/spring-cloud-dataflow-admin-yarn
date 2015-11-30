@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.yarn.api.records.ApplicationId;
 import org.apache.hadoop.yarn.api.records.ApplicationReport;
 import org.apache.hadoop.yarn.conf.YarnConfiguration;
+import org.apache.hadoop.yarn.util.ConverterUtils;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.actuate.autoconfigure.EndpointAutoConfiguration;
@@ -181,6 +182,10 @@ public class YarnCloudAppServiceApplication implements InitializingBean, Disposa
 		appId = yarnClient.submitApplication(
 				new ApplicationDescriptor(resolveApplicationdir(springYarnProperties, applicationName)));
 		return appId != null ? appId.toString() : null;
+	}
+
+	public void killApplication(String applicationId) {
+		yarnClient.killApplication(ConverterUtils.toApplicationId(applicationId));
 	}
 
 	public Collection<String> getClustersInfo(ApplicationId applicationId) {

@@ -61,8 +61,6 @@ public class YarnCloudAppTaskStateMachineTests {
 
 		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "fakeApp")
-//				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, "fakeClusterId")
-//				.setHeader(YarnCloudAppStreamStateMachine.HEADER_COUNT, 1)
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, "fakeModule")
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_DEFINITION_PARAMETERS, new HashMap<Object, Object>())
 				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CONTEXT_RUN_ARGS, contextRunArgs)
@@ -85,9 +83,6 @@ public class YarnCloudAppTaskStateMachineTests {
 
 		assertThat(yarnCloudAppService.getApplicationsLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.getApplicationsCount, is(1));
-
-		assertThat(yarnCloudAppService.getInstancesLatch.await(2, TimeUnit.SECONDS), is(true));
-		assertThat(yarnCloudAppService.getInstancesCount, is(1));
 
 		assertThat(yarnCloudAppService.pushApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.pushApplicationCount.size(), is(1));
@@ -177,6 +172,10 @@ public class YarnCloudAppTaskStateMachineTests {
 			submitApplicationCount.add(new Wrapper(appVersion));
 			submitApplicationLatch.countDown();
 			return "fakeApplicationId";
+		}
+
+		@Override
+		public void killApplications(String appName) {
 		}
 
 		@Override
