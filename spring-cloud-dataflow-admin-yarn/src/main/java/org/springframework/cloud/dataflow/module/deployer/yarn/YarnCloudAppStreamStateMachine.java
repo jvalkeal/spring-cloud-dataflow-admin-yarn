@@ -245,18 +245,23 @@ public class YarnCloudAppStreamStateMachine {
 
 		@Override
 		public void execute(StateContext<States, Events> context) {
-			Collection<CloudAppInstanceInfo> appInstanceInfos = yarnCloudAppService.getInstances();
-			for (CloudAppInstanceInfo appInstanceInfo : appInstanceInfos) {
-				logger.debug("Checking instance {}", appInstanceInfo);
-				if (appInstanceInfo.getName().equals("spring-cloud-dataflow-yarn-app") && appInstanceInfo.getState().equals("RUNNING")
-						&& appInstanceInfo.getAddress().contains("http")) {
-					context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, appInstanceInfo.getApplicationId());
-					logger.debug("Using instance {}", appInstanceInfo);
-					break;
-				}
+			CloudAppInstanceInfo appInstanceInfo = findRunningInstance();
+			if (appInstanceInfo != null) {
+				context.getExtendedState().getVariables().put(VAR_APPLICATION_ID, appInstanceInfo.getApplicationId());
 			}
-
 		}
+	}
+
+	private CloudAppInstanceInfo findRunningInstance() {
+		for (CloudAppInstanceInfo appInstanceInfo : yarnCloudAppService.getInstances()) {
+			logger.info("Checking instance {}", appInstanceInfo);
+			if (appInstanceInfo.getName().equals("scdstream:app") && appInstanceInfo.getState().equals("RUNNING")
+					&& appInstanceInfo.getAddress().contains("http")) {
+				logger.info("Using instance {}", appInstanceInfo);
+				return appInstanceInfo;
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -287,10 +292,10 @@ public class YarnCloudAppStreamStateMachine {
 			Exception error = null;
 			for (int i = 0; i < 60; i++) {
 				try {
-					if (isRunning()) {
+					CloudAppInstanceInfo appInstanceInfo = findRunningInstance();
+					if (appInstanceInfo != null && appInstanceInfo.getApplicationId().equals(applicationId)) {
 						return;
-					}
-					else {
+					} else {
 						Thread.sleep(1000);
 					}
 				}
@@ -312,14 +317,6 @@ public class YarnCloudAppStreamStateMachine {
 			}
 		}
 
-		private boolean isRunning() {
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				if (instanceInfo.getAddress().contains("http")) {
-					return true;
-				}
-			}
-			return false;
-		}
 	}
 
 	/**
@@ -359,11 +356,12 @@ public class YarnCloudAppStreamStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String clusterId = context.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class);
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				for (String cluster : yarnCloudAppService.getClusters(instanceInfo.getApplicationId())) {
+
+			CloudAppInstanceInfo appInstanceInfo = findRunningInstance();
+			if (appInstanceInfo != null) {
+				for (String cluster : yarnCloudAppService.getClusters(appInstanceInfo.getApplicationId())) {
 					if (cluster.equals(clusterId)) {
-						yarnCloudAppService.stopCluster(instanceInfo.getApplicationId(), clusterId);
-						return;
+						yarnCloudAppService.stopCluster(appInstanceInfo.getApplicationId(), clusterId);
 					}
 				}
 			}
@@ -378,10 +376,12 @@ public class YarnCloudAppStreamStateMachine {
 		@Override
 		public void execute(StateContext<States, Events> context) {
 			String clusterId = context.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class);
-			for (CloudAppInstanceInfo instanceInfo : yarnCloudAppService.getInstances()) {
-				for (String cluster : yarnCloudAppService.getClusters(instanceInfo.getApplicationId())) {
+
+			CloudAppInstanceInfo appInstanceInfo = findRunningInstance();
+			if (appInstanceInfo != null) {
+				for (String cluster : yarnCloudAppService.getClusters(appInstanceInfo.getApplicationId())) {
 					if (cluster.equals(clusterId)) {
-						yarnCloudAppService.destroyCluster(instanceInfo.getApplicationId(), clusterId);
+						yarnCloudAppService.destroyCluster(appInstanceInfo.getApplicationId(), clusterId);
 						context.getStateMachine().sendEvent(Events.CONTINUE);
 						return;
 					}

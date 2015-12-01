@@ -132,8 +132,10 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	public Map<String, String> getClustersStates() {
 		HashMap<String, String> states = new HashMap<String, String>();
 		for (CloudAppInstanceInfo instanceInfo : getInstances()) {
-			for (String cluster : getClusters(instanceInfo.getApplicationId())) {
-				states.putAll(getInstanceClustersStates(instanceInfo.getApplicationId(), cluster));
+			if (instanceInfo.getName().equals("scdstream:app") && instanceInfo.getState().equals("RUNNING")) {
+				for (String cluster : getClusters(instanceInfo.getApplicationId())) {
+					states.putAll(getInstanceClustersStates(instanceInfo.getApplicationId(), cluster));
+				}
 			}
 		}
 		return states;
@@ -163,8 +165,9 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 		return getApp(appVersion, dataflowVersion, CloudAppType.STREAM, null);
 	}
 
-	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType, List<String> contextRunArgs) {
-		String cacheKey = appVersion + StringUtils.collectionToCommaDelimitedString(contextRunArgs);
+	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType,
+			List<String> contextRunArgs) {
+		String cacheKey = cloudAppType + appVersion + StringUtils.collectionToCommaDelimitedString(contextRunArgs);
 		YarnCloudAppServiceApplication app = appCache.get(cacheKey);
 		logger.info("Cachekey {} found YarnCloudAppServiceApplication {}", cacheKey, app);
 		if (app == null) {

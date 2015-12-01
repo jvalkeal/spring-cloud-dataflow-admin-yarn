@@ -7,7 +7,7 @@ spring:
   yarn:
     appType: DATAFLOW
     appName: spring-cloud-dataflow-yarn-app
-    applicationBaseDir: /dataflow/apps/
+    applicationBaseDir: /dataflow/apps/stream/
     client:
       clientClass: org.springframework.yarn.client.DefaultApplicationYarnClient
       files:

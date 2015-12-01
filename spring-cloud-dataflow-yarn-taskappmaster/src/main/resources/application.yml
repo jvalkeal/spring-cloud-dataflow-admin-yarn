@@ -14,11 +14,10 @@ spring:
       yarn:
         version: "@project.version@"
   yarn:
-    applicationBaseDir: /dataflow/apps/
+    applicationBaseDir: /dataflow/apps/task/
     appmaster:
       containerCount: 1
       appmasterClass: org.springframework.cloud.dataflow.yarn.taskappmaster.DataFlowTaskAppmaster
-      xkeepContextAlive: true
       localizer:
         patterns:
           - "spring-cloud-dataflow-yarn-container-*.jar"

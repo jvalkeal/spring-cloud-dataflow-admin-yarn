@@ -26,8 +26,8 @@ import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleD
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 /**
  * Configuration for creating module deployers for Apache Yarn.
@@ -68,9 +68,10 @@ public class YarnAdminConfiguration {
 
 	@Bean
 	public TaskExecutor yarnModuleDeployerTaskExecutor() {
-		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
-		taskExecutor.setCorePoolSize(1);
-		return taskExecutor;
+//		ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+//		taskExecutor.setCorePoolSize(1);
+//		return taskExecutor;
+		return new SyncTaskExecutor();
 	}
 
 }
