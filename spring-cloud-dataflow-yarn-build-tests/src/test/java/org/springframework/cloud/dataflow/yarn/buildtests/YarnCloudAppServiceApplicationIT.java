@@ -155,7 +155,8 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 		Properties instanceProperties = new Properties();
 		instanceProperties.setProperty("spring.yarn.applicationVersion", "app");
 		instanceProperties.setProperty("spring.cloud.dataflow.yarn.version", getProjectVersion());
-		String[] runArgs = new String[] { "--spring.config.name=task" };
+		String[] runArgs = new String[] { "--spring.config.name=task",
+				"--spring.yarn.client.launchcontext.arguments.--dataflow.module.coordinates=org.springframework.cloud.task.module:timestamp-task:jar:exec:1.0.0.BUILD-SNAPSHOT" };
 		ApplicationContextInitializer<?>[] initializers = new ApplicationContextInitializer<?>[] {
 				new HadoopConfigurationInjectingInitializer(getConfiguration()) };
 		YarnCloudAppServiceApplication app = new YarnCloudAppServiceApplication("app", getProjectVersion(),

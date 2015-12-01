@@ -118,7 +118,7 @@ public class YarnCloudAppStreamStateMachineTests {
 		assertThat(listener.latch.await(10, TimeUnit.SECONDS), is(true));
 
 		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
-				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "fakeApp")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "app")
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, "fakeClusterId")
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_COUNT, 1)
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, "fakeModule")
@@ -148,11 +148,11 @@ public class YarnCloudAppStreamStateMachineTests {
 
 		assertThat(yarnCloudAppService.pushApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.pushApplicationCount.size(), is(1));
-		assertThat(yarnCloudAppService.pushApplicationCount.get(0).appVersion, is("fakeApp"));
+		assertThat(yarnCloudAppService.pushApplicationCount.get(0).appVersion, is("app"));
 
 		assertThat(yarnCloudAppService.submitApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.submitApplicationCount.size(), is(1));
-		assertThat(yarnCloudAppService.submitApplicationCount.get(0).appVersion, is("fakeApp"));
+		assertThat(yarnCloudAppService.submitApplicationCount.get(0).appVersion, is("app"));
 
 		assertThat(yarnCloudAppService.createClusterLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.createClusterCount.size(), is(1));
@@ -174,7 +174,7 @@ public class YarnCloudAppStreamStateMachineTests {
 	public void testDeployAppAlreadyPushedNotStarted() throws Exception {
 		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
 		TestYarnCloudAppService yarnCloudAppService = new TestYarnCloudAppService();
-		yarnCloudAppService.app = "fakeApp";
+		yarnCloudAppService.app = "app";
 		TaskExecutor taskExecutor = context.getBean(TaskExecutor.class);
 		YarnCloudAppStreamStateMachine ycasm = new YarnCloudAppStreamStateMachine(yarnCloudAppService, taskExecutor);
 		StateMachine<States, Events> stateMachine = ycasm.buildStateMachine(false);
@@ -184,7 +184,7 @@ public class YarnCloudAppStreamStateMachineTests {
 		assertThat(listener.latch.await(10, TimeUnit.SECONDS), is(true));
 
 		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
-				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "fakeApp")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "app")
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, "fakeClusterId")
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_COUNT, 1)
 				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, "fakeModule")
@@ -217,7 +217,7 @@ public class YarnCloudAppStreamStateMachineTests {
 
 		assertThat(yarnCloudAppService.submitApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.submitApplicationCount.size(), is(1));
-		assertThat(yarnCloudAppService.submitApplicationCount.get(0).appVersion, is("fakeApp"));
+		assertThat(yarnCloudAppService.submitApplicationCount.get(0).appVersion, is("app"));
 
 		assertThat(yarnCloudAppService.createClusterLatch.await(2, TimeUnit.SECONDS), is(true));
 		assertThat(yarnCloudAppService.createClusterCount.size(), is(1));
@@ -284,7 +284,7 @@ public class YarnCloudAppStreamStateMachineTests {
 		public Collection<CloudAppInstanceInfo> getInstances(CloudAppType cloudAppType) {
 			ArrayList<CloudAppInstanceInfo> infos = new ArrayList<CloudAppInstanceInfo>();
 			if (instance != null) {
-				infos.add(new CloudAppInstanceInfo("fakeApplicationId", instance, "fakestate", "http://fakeAddress"));
+				infos.add(new CloudAppInstanceInfo("fakeApplicationId", instance, "RUNNING", "http://fakeAddress"));
 			}
 			getInstancesCount++;
 			getInstancesLatch.countDown();
@@ -300,7 +300,7 @@ public class YarnCloudAppStreamStateMachineTests {
 
 		@Override
 		public String submitApplication(String appVersion, CloudAppType cloudAppType) {
-			instance = "spring-cloud-dataflow-yarn-app_" + appVersion;
+			instance = "scdstream:" + appVersion;
 			submitApplicationCount.add(new Wrapper(appVersion));
 			submitApplicationLatch.countDown();
 			return "fakeApplicationId";

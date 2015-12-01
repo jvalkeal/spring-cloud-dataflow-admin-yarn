@@ -6,7 +6,7 @@ spring:
     show_banner: false
   yarn:
     appType: DATAFLOW
-    appName: spring-cloud-dataflow-yarn-app
+    appName: scdstream:app
     applicationBaseDir: /dataflow/apps/stream/
     client:
       clientClass: org.springframework.yarn.client.DefaultApplicationYarnClient

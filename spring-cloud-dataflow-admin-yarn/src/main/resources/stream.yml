@@ -21,7 +21,7 @@ spring:
         - "file:${dataflow.yarn.app.config.path:config}/servers.yml"
       launchcontext:
         arguments:
-          -Dspring.config.location: ${dataflow.yarn.app.config.path:config}/servers.yml
+          -Dspring.config.location: servers.yml
         archiveFile: spring-cloud-dataflow-yarn-streamappmaster-${spring.cloud.dataflow.yarn.version}.jar
       resource:
         memory: 1g
