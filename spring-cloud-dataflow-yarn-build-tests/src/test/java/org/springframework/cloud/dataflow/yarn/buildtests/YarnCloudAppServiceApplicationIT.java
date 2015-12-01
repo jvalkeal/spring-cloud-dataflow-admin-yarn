@@ -68,7 +68,7 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 
 		String appId = app.submitApplication("app");
 		ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);
+		ApplicationInfo info = waitState(applicationId, 3, TimeUnit.MINUTES, YarnApplicationState.RUNNING);
 		assertThat(info.getYarnApplicationState(), is(YarnApplicationState.RUNNING));
 
 		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
@@ -119,7 +119,7 @@ public class YarnCloudAppServiceApplicationIT extends AbstractCliBootYarnCluster
 
 		String appId = app.submitApplication("app");
 		ApplicationId applicationId = ConverterUtils.toApplicationId(appId);
-		ApplicationInfo info = waitState(applicationId, 60, TimeUnit.SECONDS, YarnApplicationState.RUNNING);
+		ApplicationInfo info = waitState(applicationId, 3, TimeUnit.MINUTES, YarnApplicationState.RUNNING);
 		assertThat(info.getYarnApplicationState(), is(YarnApplicationState.RUNNING));
 
 		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
