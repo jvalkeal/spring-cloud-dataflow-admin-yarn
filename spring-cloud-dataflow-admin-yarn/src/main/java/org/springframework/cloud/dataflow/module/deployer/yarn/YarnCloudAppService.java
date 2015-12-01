@@ -32,14 +32,14 @@ public interface YarnCloudAppService {
 	 *
 	 * @return the applications
 	 */
-	Collection<CloudAppInfo> getApplications();
+	Collection<CloudAppInfo> getApplications(CloudAppType cloudAppType);
 
 	/**
 	 * Get running application instances.
 	 *
 	 * @return the instances
 	 */
-	Collection<CloudAppInstanceInfo> getInstances();
+	Collection<CloudAppInstanceInfo> getInstances(CloudAppType cloudAppType);
 
 	/**
 	 * Push new application into hdfs. Push operation is copying needed
@@ -78,7 +78,7 @@ public interface YarnCloudAppService {
 	 *
 	 * @param appName the application name
 	 */
-	void killApplications(String appName);
+	void killApplications(String appName, CloudAppType cloudAppType);
 
 	/**
 	 * Creates the container cluster.

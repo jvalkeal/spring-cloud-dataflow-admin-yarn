@@ -24,6 +24,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnTaskModuleDeployer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -115,7 +116,7 @@ public class YarnTaskModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 		long end = System.currentTimeMillis() + unit.toMillis(timeout);
 
 		do {
-			instances = yarnCloudAppService.getInstances();
+			instances = yarnCloudAppService.getInstances(CloudAppType.TASK);
 			if (instances.size() == 1) {
 				CloudAppInstanceInfo cloudAppInstanceInfo = instances.iterator().next();
 				if (StringUtils.hasText(cloudAppInstanceInfo.getAddress())) {

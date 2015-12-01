@@ -201,7 +201,7 @@ public class YarnCloudAppStreamStateMachine {
 						MessageBuilder.withPayload(Events.ERROR).setHeader(HEADER_ERROR, "appVersion not defined")
 								.build());
 			} else {
-				Collection<CloudAppInfo> appInfos = yarnCloudAppService.getApplications();
+				Collection<CloudAppInfo> appInfos = yarnCloudAppService.getApplications(CloudAppType.STREAM);
 				for (CloudAppInfo appInfo : appInfos) {
 					if (appInfo.getName().equals(appVersion)) {
 						context.getExtendedState().getVariables().put(VAR_APP_VERSION, appVersion);
@@ -253,7 +253,7 @@ public class YarnCloudAppStreamStateMachine {
 	}
 
 	private CloudAppInstanceInfo findRunningInstance() {
-		for (CloudAppInstanceInfo appInstanceInfo : yarnCloudAppService.getInstances()) {
+		for (CloudAppInstanceInfo appInstanceInfo : yarnCloudAppService.getInstances(CloudAppType.STREAM)) {
 			logger.info("Checking instance {}", appInstanceInfo);
 			if (appInstanceInfo.getName().equals("scdstream:app") && appInstanceInfo.getState().equals("RUNNING")
 					&& appInstanceInfo.getAddress().contains("http")) {

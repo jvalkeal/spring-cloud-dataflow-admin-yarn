@@ -68,13 +68,13 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	}
 
 	@Override
-	public Collection<CloudAppInfo> getApplications() {
-		return getApp(null, null).getPushedApplications();
+	public Collection<CloudAppInfo> getApplications(CloudAppType cloudAppType) {
+		return getApp(null, null, cloudAppType).getPushedApplications();
 	}
 
 	@Override
-	public Collection<CloudAppInstanceInfo> getInstances() {
-		return getApp(null, null).getSubmittedApplications();
+	public Collection<CloudAppInstanceInfo> getInstances(CloudAppType cloudAppType) {
+		return getApp(null, null, cloudAppType).getSubmittedApplications();
 	}
 
 	@Override
@@ -93,8 +93,8 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 	}
 
 	@Override
-	public void killApplications(String appName) {
-		YarnCloudAppServiceApplication app = getApp(null, null);
+	public void killApplications(String appName, CloudAppType cloudAppType) {
+		YarnCloudAppServiceApplication app = getApp(null, null, cloudAppType);
 		Collection<CloudAppInstanceInfo> submittedApplications = app.getSubmittedApplications();
 		for (CloudAppInstanceInfo info : submittedApplications) {
 			if (info.getName() == appName) {
@@ -114,24 +114,24 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 		for (Map.Entry<String, String> entry : definitionParameters.entrySet()) {
 			extraProperties.put("containerArg" + i++, entry.getKey() + "=" + entry.getValue());
 		}
-		getApp(null, null).createCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId, "module-template",
+		getApp(null, null, CloudAppType.STREAM).createCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId, "module-template",
 				"default", 1, null, null, null, extraProperties);
 	}
 
 	@Override
 	public void startCluster(String yarnApplicationId, String clusterId) {
-		getApp(null, null).startCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
+		getApp(null, null, CloudAppType.STREAM).startCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
 	}
 
 	@Override
 	public void stopCluster(String yarnApplicationId, String clusterId) {
-		getApp(null, null).stopCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
+		getApp(null, null, CloudAppType.STREAM).stopCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
 	}
 
 	@Override
 	public Map<String, String> getClustersStates() {
 		HashMap<String, String> states = new HashMap<String, String>();
-		for (CloudAppInstanceInfo instanceInfo : getInstances()) {
+		for (CloudAppInstanceInfo instanceInfo : getInstances(CloudAppType.STREAM)) {
 			if (instanceInfo.getName().equals("scdstream:app") && instanceInfo.getState().equals("RUNNING")) {
 				for (String cluster : getClusters(instanceInfo.getApplicationId())) {
 					states.putAll(getInstanceClustersStates(instanceInfo.getApplicationId(), cluster));
@@ -143,17 +143,17 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 
 	@Override
 	public Collection<String> getClusters(String yarnApplicationId) {
-		return getApp(null, null).getClustersInfo(ConverterUtils.toApplicationId(yarnApplicationId));
+		return getApp(null, null, CloudAppType.STREAM).getClustersInfo(ConverterUtils.toApplicationId(yarnApplicationId));
 	}
 
 	@Override
 	public void destroyCluster(String yarnApplicationId, String clusterId) {
-		getApp(null, null).destroyCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
+		getApp(null, null, CloudAppType.STREAM).destroyCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
 	}
 
 	private Map<String, String> getInstanceClustersStates(String yarnApplicationId, String clusterId) {
 		HashMap<String, String> states = new HashMap<String, String>();
-		List<ClustersInfoReportData> clusterInfo = getApp(null, null)
+		List<ClustersInfoReportData> clusterInfo = getApp(null, null, CloudAppType.STREAM)
 				.getClusterInfo(ConverterUtils.toApplicationId(yarnApplicationId), clusterId);
 		if (clusterInfo.size() == 1) {
 			states.put(clusterId, clusterInfo.get(0).getState());
@@ -161,8 +161,8 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 		return states;
 	}
 
-	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion) {
-		return getApp(appVersion, dataflowVersion, CloudAppType.STREAM, null);
+	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType) {
+		return getApp(appVersion, dataflowVersion, cloudAppType, null);
 	}
 
 	private synchronized YarnCloudAppServiceApplication getApp(String appVersion, String dataflowVersion, CloudAppType cloudAppType,

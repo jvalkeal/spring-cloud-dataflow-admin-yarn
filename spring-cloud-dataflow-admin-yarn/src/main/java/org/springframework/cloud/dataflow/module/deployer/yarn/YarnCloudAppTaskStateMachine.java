@@ -181,7 +181,7 @@ public class YarnCloudAppTaskStateMachine {
 						MessageBuilder.withPayload(Events.ERROR).setHeader(HEADER_ERROR, "appVersion not defined")
 								.build());
 			} else {
-				Collection<CloudAppInfo> appInfos = yarnCloudAppService.getApplications();
+				Collection<CloudAppInfo> appInfos = yarnCloudAppService.getApplications(CloudAppType.TASK);
 				for (CloudAppInfo appInfo : appInfos) {
 					if (appInfo.getName().equals(appVersion)) {
 						context.getExtendedState().getVariables().put(VAR_APP_VERSION, appVersion);
@@ -245,7 +245,7 @@ public class YarnCloudAppTaskStateMachine {
 		public void execute(StateContext<States, Events> context) {
 			// we don't have no way to match running task instance
 			String appName = (String) context.getMessageHeader(HEADER_APP_NAME);
-			yarnCloudAppService.killApplications(appName);
+			yarnCloudAppService.killApplications(appName, CloudAppType.TASK);
 		}
 	}
 

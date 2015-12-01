@@ -32,6 +32,7 @@ import org.springframework.cloud.dataflow.core.ModuleDeploymentRequest;
 import org.springframework.cloud.dataflow.module.ModuleStatus;
 import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppTaskStateMachine.Events;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppTaskStateMachine.States;
 import org.springframework.messaging.Message;
@@ -119,7 +120,7 @@ public class YarnTaskModuleDeployer implements ModuleDeployer {
 	public Map<ModuleDeploymentId, ModuleStatus> status() {
 		logger.info("Status request for all modules");
 		Map<ModuleDeploymentId, ModuleStatus> statuses = new HashMap<ModuleDeploymentId, ModuleStatus>();
-		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances();
+		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances(CloudAppType.TASK);
 		for (CloudAppInstanceInfo instance : instances) {
 			if (instance.getName().startsWith("scdtask:")) {
 				ModuleDeploymentId id = appNameToModuleDeploymentId(instance.getName());

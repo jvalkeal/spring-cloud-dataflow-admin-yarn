@@ -130,7 +130,7 @@ public class YarnCloudAppTaskStateMachineTests {
 		final List<Wrapper> stopClusterCount = Collections.synchronizedList(new ArrayList<Wrapper>());
 
 		@Override
-		public Collection<CloudAppInfo> getApplications() {
+		public Collection<CloudAppInfo> getApplications(CloudAppType cloudAppType) {
 			ArrayList<CloudAppInfo> infos = new ArrayList<CloudAppInfo>();
 			if (app != null) {
 				infos.add(new CloudAppInfo(app));
@@ -141,7 +141,7 @@ public class YarnCloudAppTaskStateMachineTests {
 		}
 
 		@Override
-		public Collection<CloudAppInstanceInfo> getInstances() {
+		public Collection<CloudAppInstanceInfo> getInstances(CloudAppType cloudAppType) {
 			ArrayList<CloudAppInstanceInfo> infos = new ArrayList<CloudAppInstanceInfo>();
 			if (instance != null) {
 				infos.add(new CloudAppInstanceInfo("fakeApplicationId", instance, "fakestate", "http://fakeAddress"));
@@ -175,7 +175,7 @@ public class YarnCloudAppTaskStateMachineTests {
 		}
 
 		@Override
-		public void killApplications(String appName) {
+		public void killApplications(String appName, CloudAppType cloudAppType) {
 		}
 
 		@Override

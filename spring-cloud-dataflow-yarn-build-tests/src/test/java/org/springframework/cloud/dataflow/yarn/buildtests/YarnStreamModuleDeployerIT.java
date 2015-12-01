@@ -42,6 +42,7 @@ import org.springframework.cloud.dataflow.module.deployer.ModuleDeployer;
 import org.springframework.cloud.dataflow.module.deployer.yarn.DefaultYarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppInstanceInfo;
+import org.springframework.cloud.dataflow.module.deployer.yarn.YarnCloudAppService.CloudAppType;
 import org.springframework.cloud.dataflow.module.deployer.yarn.YarnStreamModuleDeployer;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -130,7 +131,7 @@ public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests 
 		deployer.undeploy(logId);
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "stopped inbound.ticktock.0");
 
-		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances();
+		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances(CloudAppType.STREAM);
 		assertThat(instances.size(), is(1));
 
 		List<Resource> resources = ContainerLogUtils.queryContainerLogs(
@@ -199,7 +200,7 @@ public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests 
 		//assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "stopped inbound.timehdfs.0");
 		assertWaitFileContent(2, TimeUnit.MINUTES, applicationId, "stopped hdfsSink.hdfsSink.serviceActivator");
 
-		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances();
+		Collection<CloudAppInstanceInfo> instances = yarnCloudAppService.getInstances(CloudAppType.STREAM);
 		assertThat(instances.size(), is(1));
 
 		List<Resource> resources = ContainerLogUtils.queryContainerLogs(
@@ -225,7 +226,7 @@ public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests 
 		long end = System.currentTimeMillis() + unit.toMillis(timeout);
 
 		do {
-			instances = yarnCloudAppService.getInstances();
+			instances = yarnCloudAppService.getInstances(CloudAppType.STREAM);
 			if (instances.size() == 1) {
 				CloudAppInstanceInfo cloudAppInstanceInfo = instances.iterator().next();
 				if (StringUtils.hasText(cloudAppInstanceInfo.getAddress())) {
