@@ -135,6 +135,9 @@ public class YarnCloudAppStreamStateMachine {
 				.event(Events.CONTINUE)
 				.and()
 			.withExternal()
+				.source(States.STARTCLUSTER).target(States.READY)
+				.and()
+			.withExternal()
 				.source(States.READY).target(States.DEPLOYMODULE)
 				.event(Events.DEPLOY)
 				.and()
@@ -344,7 +347,7 @@ public class YarnCloudAppStreamStateMachine {
 		public void execute(StateContext<States, Events> context) {
 			yarnCloudAppService.startCluster(context.getExtendedState().get(VAR_APPLICATION_ID, String.class), context
 					.getMessageHeaders().get(HEADER_CLUSTER_ID, String.class));
-			context.getStateMachine().sendEvent(Events.CONTINUE);
+//			context.getStateMachine().sendEvent(Events.CONTINUE);
 		}
 	}
 

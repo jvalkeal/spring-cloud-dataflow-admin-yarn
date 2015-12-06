@@ -235,6 +235,36 @@ public class YarnCloudAppStreamStateMachineTests {
 		context.close();
 	}
 
+	@Test
+	public void testTwoDeploysShouldDefer() throws Exception {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+		TestYarnCloudAppService yarnCloudAppService = new TestYarnCloudAppService();
+		yarnCloudAppService.app = "app";
+		TaskExecutor taskExecutor = context.getBean(TaskExecutor.class);
+		YarnCloudAppStreamStateMachine ycasm = new YarnCloudAppStreamStateMachine(yarnCloudAppService, taskExecutor);
+		StateMachine<States, Events> stateMachine = ycasm.buildStateMachine(false);
+		TestStateMachineListener listener = new TestStateMachineListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		assertThat(listener.latch.await(10, TimeUnit.SECONDS), is(true));
+
+		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "app")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_CLUSTER_ID, "fakeClusterId")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_COUNT, 1)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, "fakeModule")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_DEFINITION_PARAMETERS, new HashMap<Object, Object>())
+				.build();
+
+		stateMachine.sendEvent(message);
+//		Thread.sleep(100);
+		stateMachine.sendEvent(message);
+
+		Thread.sleep(2000);
+
+		context.close();
+	}
+
 	@Configuration
 	static class Config {
 
