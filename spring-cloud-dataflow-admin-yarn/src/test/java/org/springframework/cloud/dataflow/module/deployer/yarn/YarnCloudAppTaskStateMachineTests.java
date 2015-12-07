@@ -95,6 +95,57 @@ public class YarnCloudAppTaskStateMachineTests {
 		context.close();
 	}
 
+	@Test
+	public void testDeployTwice() throws Exception {
+		AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
+		TestYarnCloudAppService yarnCloudAppService = new TestYarnCloudAppService();
+		TaskExecutor taskExecutor = context.getBean(TaskExecutor.class);
+		YarnCloudAppTaskStateMachine ycasm = new YarnCloudAppTaskStateMachine(yarnCloudAppService, taskExecutor);
+		StateMachine<States, Events> stateMachine = ycasm.buildStateMachine(false);
+		TestStateMachineListener listener = new TestStateMachineListener();
+		stateMachine.addStateListener(listener);
+		stateMachine.start();
+		assertThat(listener.latch.await(10, TimeUnit.SECONDS), is(true));
+
+		ArrayList<String> contextRunArgs = new ArrayList<String>();
+
+		Message<Events> message = MessageBuilder.withPayload(Events.DEPLOY)
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_APP_VERSION, "fakeApp")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_MODULE, "fakeModule")
+				.setHeader(YarnCloudAppStreamStateMachine.HEADER_DEFINITION_PARAMETERS, new HashMap<Object, Object>())
+				.setHeader(YarnCloudAppTaskStateMachine.HEADER_CONTEXT_RUN_ARGS, contextRunArgs)
+				.build();
+
+		StateMachineTestPlan<States, Events> plan =
+				StateMachineTestPlanBuilder.<States, Events>builder()
+					.defaultAwaitTime(10)
+					.stateMachine(stateMachine)
+					.step()
+						.expectStates(States.READY)
+						.and()
+					.step()
+						.sendEvent(message)
+						.sendEvent(message)
+						.expectStateChanged(9)
+						.expectStates(States.READY)
+						.and()
+					.build();
+		plan.test();
+
+		assertThat(yarnCloudAppService.getApplicationsLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(yarnCloudAppService.getApplicationsCount, is(2));
+
+		assertThat(yarnCloudAppService.pushApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(yarnCloudAppService.pushApplicationCount.size(), is(1));
+		assertThat(yarnCloudAppService.pushApplicationCount.get(0).appVersion, is("fakeApp"));
+
+		assertThat(yarnCloudAppService.submitApplicationLatch.await(2, TimeUnit.SECONDS), is(true));
+		assertThat(yarnCloudAppService.submitApplicationCount.size(), is(2));
+		assertThat(yarnCloudAppService.submitApplicationCount.get(0).appVersion, is("fakeApp"));
+
+		context.close();
+	}
+
 	@Configuration
 	static class Config {
 
@@ -113,7 +164,6 @@ public class YarnCloudAppTaskStateMachineTests {
 		volatile String instance = null;
 
 		final CountDownLatch getApplicationsLatch = new CountDownLatch(1);
-		final CountDownLatch getInstancesLatch = new CountDownLatch(1);
 		final CountDownLatch pushApplicationLatch = new CountDownLatch(1);
 		final CountDownLatch submitApplicationLatch = new CountDownLatch(1);
 		final CountDownLatch createClusterLatch = new CountDownLatch(1);
@@ -121,7 +171,6 @@ public class YarnCloudAppTaskStateMachineTests {
 		final CountDownLatch stopClusterLatch = new CountDownLatch(1);
 
 		volatile int getApplicationsCount = 0;
-		volatile int getInstancesCount = 0;
 
 		final List<Wrapper> pushApplicationCount = Collections.synchronizedList(new ArrayList<Wrapper>());
 		final List<Wrapper> submitApplicationCount = Collections.synchronizedList(new ArrayList<Wrapper>());
@@ -146,8 +195,6 @@ public class YarnCloudAppTaskStateMachineTests {
 			if (instance != null) {
 				infos.add(new CloudAppInstanceInfo("fakeApplicationId", instance, "fakestate", "http://fakeAddress"));
 			}
-			getInstancesCount++;
-			getInstancesLatch.countDown();
 			return infos;
 		}
 

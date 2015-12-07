@@ -43,7 +43,7 @@ public class ClientApplication extends AbstractCli {
 		List<Command> commands = new ArrayList<Command>();
 		commands.add(new YarnPushCommand());
 		commands.add(new YarnPushedCommand());
-		commands.add(new YarnSubmitCommand());
+//		commands.add(new YarnSubmitCommand());
 		commands.add(new YarnSubmittedCommand(new SubmittedOptionHandler("DATAFLOW")));
 		commands.add(new YarnKillCommand());
 		commands.add(new YarnShutdownCommand());

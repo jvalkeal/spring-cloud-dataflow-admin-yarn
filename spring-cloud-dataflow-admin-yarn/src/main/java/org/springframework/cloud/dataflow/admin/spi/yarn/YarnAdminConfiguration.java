@@ -71,8 +71,6 @@ public class YarnAdminConfiguration {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setCorePoolSize(1);
 		return executor;
-		// for defer issues in sm, use SyncTaskExecutor for now
-//		return new SyncTaskExecutor();
 	}
 
 }
