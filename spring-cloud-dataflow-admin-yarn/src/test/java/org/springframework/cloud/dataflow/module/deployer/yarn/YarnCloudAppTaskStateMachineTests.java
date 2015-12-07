@@ -258,6 +258,7 @@ public class YarnCloudAppTaskStateMachineTests {
 		public void destroyCluster(String yarnApplicationId, String clusterId) {
 		}
 
+		@SuppressWarnings("unused")
 		static class Wrapper {
 			String appVersion;
 			String yarnApplicationId;
