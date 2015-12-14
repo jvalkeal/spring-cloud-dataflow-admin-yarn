@@ -55,7 +55,7 @@ public class DataFlowAppmaster extends ManagedContainerClusterAppmaster {
 				if (entry.getKey().startsWith("containerArg")) {
 //					list.add(Math.max(list.size() - 2, 0), entry.getValue().toString());
 //					list.add(Math.max(list.size() - 2, 0), "\"" + entry.getValue().toString() + "\"");
-					list.add(Math.max(list.size() - 2, 0), entry.getValue().toString().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"));
+//					list.add(Math.max(list.size() - 2, 0), entry.getValue().toString().replaceAll("\\(", "\\\\(").replaceAll("\\)", "\\\\)"));
 				}
 			}
 		}
