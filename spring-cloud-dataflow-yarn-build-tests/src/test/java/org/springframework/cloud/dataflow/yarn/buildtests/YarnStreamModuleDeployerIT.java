@@ -64,7 +64,7 @@ import org.springframework.yarn.test.support.ContainerLogUtils;
  * @author Janne Valkealahti
  *
  */
-@Ignore("Keeps failing, problem with deployer?")
+//@Ignore("Keeps failing, problem with deployer?")
 public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests {
 
 	private static final String GROUP_ID = "org.springframework.cloud.stream.module";
@@ -104,6 +104,9 @@ public class YarnStreamModuleDeployerIT extends AbstractCliBootYarnClusterTests 
 				.setGroup("ticktock")
 				.setName("log")
 				.setParameter("spring.cloud.stream.bindings.input", "ticktock.0")
+//				.setParameter("expression", "payload+'XXXX'")
+				.setParameter("expression", "new String(payload + ' hello')")
+//				.setParameter("expressionxxx", "new demo.domain.Book(T(com.datastax.driver.core.utils.UUIDs).timeBased(), payload.title, payload.author)")
 				.build();
 		ArtifactCoordinates timeCoordinates = new ArtifactCoordinates.Builder()
 				.setGroupId(GROUP_ID)
