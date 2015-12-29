@@ -22,6 +22,9 @@
 	</properties>
 
 	<modules>
+		<module>spring-cloud-dataflow-discovery</module>
+		<module>spring-cloud-dataflow-zuul</module>
+		<module>spring-cloud-dataflow-eureka</module>
 		<module>spring-cloud-dataflow-yarn-common</module>
 		<module>spring-cloud-dataflow-yarn-streamappmaster</module>
 		<module>spring-cloud-dataflow-yarn-taskappmaster</module>

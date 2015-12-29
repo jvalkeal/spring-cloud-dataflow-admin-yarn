@@ -1,0 +1,9 @@
+eureka:
+  instance:
+    appname: stream-${dataflow.clusterId}
+    instanceId: stream-${dataflow.clusterId}-${random.value}
+    virtualHostName: stream-${dataflow.clusterId}
+  client:
+    serviceUrl:
+      defaultZone: ${dataflow.eureka.client.serviceUrl.defaultZone:http://localhost:8761/eureka/}
+ 

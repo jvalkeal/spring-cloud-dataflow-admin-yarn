@@ -25,6 +25,8 @@
 			<outputDirectory>/lib</outputDirectory>
 			<outputFileNameMapping>${artifact.artifactId}-${artifact.baseVersion}.${artifact.extension}</outputFileNameMapping>
 			<includes>
+				<include>org.springframework.cloud:spring-cloud-dataflow-eureka</include>
+				<include>org.springframework.cloud:spring-cloud-dataflow-zuul</include>
 				<include>org.springframework.cloud:spring-cloud-dataflow-admin-yarn</include>
 				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-streamappmaster</include>
 				<include>org.springframework.cloud:spring-cloud-dataflow-yarn-taskappmaster</include>

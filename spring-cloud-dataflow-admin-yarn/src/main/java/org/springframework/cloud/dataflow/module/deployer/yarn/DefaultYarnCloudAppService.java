@@ -121,6 +121,7 @@ public class DefaultYarnCloudAppService implements YarnCloudAppService, Initiali
 				extraProperties.put("containerArg" + i++, entry.getKey() + "=\\\"" + value + "\\\"");
 			}
 		}
+		extraProperties.put("containerArg" + i++, "dataflow.clusterId=" + clusterId.replace(':', '-'));
 		getApp(null, null, CloudAppType.STREAM).createCluster(ConverterUtils.toApplicationId(yarnApplicationId), clusterId, "module-template",
 				"default", 1, null, null, null, extraProperties);
 	}
