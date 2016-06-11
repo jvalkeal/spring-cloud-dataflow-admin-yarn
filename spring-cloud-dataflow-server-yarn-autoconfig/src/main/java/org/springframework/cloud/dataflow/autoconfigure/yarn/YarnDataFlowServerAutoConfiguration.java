@@ -24,6 +24,7 @@ import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
@@ -60,13 +61,14 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @Configuration
 @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE)
 @ConditionalOnClass({ AppDeployer.class, TaskLauncher.class })
+//@AutoConfigureAfter(name = "org.springframework.cloud.deployer.spi.yarn.autoconfigure.YarnDeployerAutoConfiguration")
 @ConditionalOnProperty(prefix = "dataflow.server.yarn", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class YarnDataFlowServerAutoConfiguration {
 
 	private static final String REL_PROVIDER_BEAN_NAME = "defaultRelProvider";
 
-	@Value("${spring.cloud.dataflow.yarn.version}")
-	private String dataflowVersion;
+//	@Value("${spring.cloud.dataflow.yarn.version}")
+//	private String dataflowVersion;
 
 	@Autowired(required = false)
 	private MavenResourceLoader mavenResourceLoader;
@@ -107,49 +109,49 @@ public class YarnDataFlowServerAutoConfiguration {
 		};
 	}
 
-	@Bean
-	public YarnCloudAppService yarnCloudAppService() {
-		return new DefaultYarnCloudAppService(dataflowVersion);
-	}
-
-	@Bean
-	public TaskExecutor yarnModuleDeployerTaskExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(1);
-		return executor;
-	}
-
-	@Configuration
-	@ConditionalOnMissingBean(name = "appDeployer")
-	public static class ProcessModuleDeployerConfig {
-
-		@Bean
-		public AppDeployerStateMachine appDeployerStateMachine(YarnCloudAppService yarnCloudAppService,
-				TaskExecutor yarnModuleDeployerTaskExecutor, BeanFactory beanFactory, ApplicationContext applicationContext) throws Exception {
-			return new AppDeployerStateMachine(yarnCloudAppService, yarnModuleDeployerTaskExecutor, beanFactory, applicationContext);
-		}
-
-		@Bean
-		public AppDeployer appDeployer(YarnCloudAppService yarnCloudAppService,
-				AppDeployerStateMachine appDeployerStateMachine) throws Exception {
-			return new YarnAppDeployer(yarnCloudAppService, appDeployerStateMachine.buildStateMachine());
-		}
-	}
-
-	@Configuration
-	@ConditionalOnMissingBean(name = "taskLauncher")
-	public static class TaskModuleDeployerConfig {
-
-		@Bean
-		public TaskLauncherStateMachine taskLauncherStateMachine(YarnCloudAppService yarnCloudAppService,
-				TaskExecutor yarnModuleDeployerTaskExecutor, BeanFactory beanFactory, ApplicationContext applicationContext) throws Exception {
-			return new TaskLauncherStateMachine(yarnCloudAppService, yarnModuleDeployerTaskExecutor, beanFactory, applicationContext);
-		}
-
-		@Bean
-		public TaskLauncher taskLauncher(YarnCloudAppService yarnCloudAppService,
-				TaskLauncherStateMachine taskLauncherStateMachine) throws Exception {
-			return new YarnTaskLauncher(yarnCloudAppService, taskLauncherStateMachine.buildStateMachine());
-		}
-	}
+//	@Bean
+//	public YarnCloudAppService yarnCloudAppService() {
+//		return new DefaultYarnCloudAppService(dataflowVersion);
+//	}
+//
+//	@Bean
+//	public TaskExecutor yarnModuleDeployerTaskExecutor() {
+//		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+//		executor.setCorePoolSize(1);
+//		return executor;
+//	}
+//
+//	@Configuration
+//	@ConditionalOnMissingBean(name = "appDeployer")
+//	public static class ProcessModuleDeployerConfig {
+//
+//		@Bean
+//		public AppDeployerStateMachine appDeployerStateMachine(YarnCloudAppService yarnCloudAppService,
+//				TaskExecutor yarnModuleDeployerTaskExecutor, BeanFactory beanFactory, ApplicationContext applicationContext) throws Exception {
+//			return new AppDeployerStateMachine(yarnCloudAppService, yarnModuleDeployerTaskExecutor, beanFactory, applicationContext);
+//		}
+//
+//		@Bean
+//		public AppDeployer appDeployer(YarnCloudAppService yarnCloudAppService,
+//				AppDeployerStateMachine appDeployerStateMachine) throws Exception {
+//			return new YarnAppDeployer(yarnCloudAppService, appDeployerStateMachine.buildStateMachine());
+//		}
+//	}
+//
+//	@Configuration
+//	@ConditionalOnMissingBean(name = "taskLauncher")
+//	public static class TaskModuleDeployerConfig {
+//
+//		@Bean
+//		public TaskLauncherStateMachine taskLauncherStateMachine(YarnCloudAppService yarnCloudAppService,
+//				TaskExecutor yarnModuleDeployerTaskExecutor, BeanFactory beanFactory, ApplicationContext applicationContext) throws Exception {
+//			return new TaskLauncherStateMachine(yarnCloudAppService, yarnModuleDeployerTaskExecutor, beanFactory, applicationContext);
+//		}
+//
+//		@Bean
+//		public TaskLauncher taskLauncher(YarnCloudAppService yarnCloudAppService,
+//				TaskLauncherStateMachine taskLauncherStateMachine) throws Exception {
+//			return new YarnTaskLauncher(yarnCloudAppService, taskLauncherStateMachine.buildStateMachine());
+//		}
+//	}
 }

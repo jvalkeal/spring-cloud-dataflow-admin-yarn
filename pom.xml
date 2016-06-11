@@ -85,6 +85,11 @@
 				<version>${spring-cloud-deployer-yarn.version}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-deployer-yarn-autoconfig</artifactId>
+				<version>${spring-cloud-deployer-yarn.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>org.springframework.data</groupId>
 				<artifactId>spring-yarn-boot</artifactId>
 				<version>${spring-hadoop.version}</version>
