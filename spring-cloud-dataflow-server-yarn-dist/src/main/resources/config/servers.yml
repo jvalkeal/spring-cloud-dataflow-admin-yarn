@@ -46,9 +46,10 @@ spring:
 #      preferInterface: ['eth', 'en']
 #      matchIpv4: 192.168.0.0/24
 #      matchInterface: eth\\d*
-#dataflow:
+#deployer:
 #  yarn:
 #    app:
+#      baseDir: /dataflow
 #      streamappmaster:
 #        memory: 512m
 #        virtualCores: 1
