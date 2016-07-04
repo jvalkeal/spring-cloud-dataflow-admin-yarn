@@ -44,13 +44,14 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class HdfsCommands implements CommandMarker {
+public class HadoopCommands implements CommandMarker {
 
 	private static final String PREFIX = "hadoop fs ";
 	private static final String FALSE = "false";
 	private static final String TRUE = "true";
 	private static final String RECURSIVE = "recursive";
 	private static final String RECURSION_HELP = "whether with recursion";
+	private static final String PATH = "path";
 
 	private FsShell shell;
 
@@ -65,6 +66,20 @@ public class HdfsCommands implements CommandMarker {
 			@CliOption(key = { RECURSIVE }, mandatory = false, specifiedDefaultValue = TRUE, unspecifiedDefaultValue = FALSE, help = RECURSION_HELP) final boolean recursive) {
 		Collection<FileStatus> files = recursive ? shell.lsr(path) : shell.ls(path);
 		return applySimpleListStyle(new TableBuilder(new FileStatusTableModel(files.toArray(new FileStatus[0])))).build();
+	}
+
+	@CliCommand(value = PREFIX + "rm", help = "Remove files in the HDFS")
+	public void rm(
+			@CliOption(key = { "", PATH }, mandatory = false, unspecifiedDefaultValue = ".", help = "path to be deleted") final String path,
+			@CliOption(key = { "skipTrash" }, mandatory = false, specifiedDefaultValue = TRUE, unspecifiedDefaultValue = FALSE, help = "whether to skip trash") final boolean skipTrash,
+			@CliOption(key = { RECURSIVE }, mandatory = false, specifiedDefaultValue = TRUE, unspecifiedDefaultValue = FALSE, help = "whether to recurse") final boolean recursive) {
+		shell.rm(recursive, skipTrash, path);
+	}
+
+	@CliCommand(value = PREFIX + "cat", help = "Copy source paths to stdout")
+	public String cat(
+			@CliOption(key = { "", PATH }, mandatory = true, unspecifiedDefaultValue = ".", help = "file name to be shown") final String path) {
+		return shell.cat(path).toString();
 	}
 
 	private static TableBuilder applySimpleListStyle(TableBuilder builder) {
@@ -112,17 +127,23 @@ public class HdfsCommands implements CommandMarker {
 		public Object getValue(int row, int column) {
 			if (column == 0) {
 				return statuses[row].getPermission().toString();
-			} else if (column == 1) {
+			}
+			else if (column == 1) {
 				return statuses[row].getOwner();
-			} else if (column == 2) {
+			}
+			else if (column == 2) {
 				return statuses[row].getGroup();
-			} else if (column == 3) {
+			}
+			else if (column == 3) {
 				return statuses[row].getLen();
-			} else if (column == 4) {
+			}
+			else if (column == 4) {
 				return statuses[row].getModificationTime();
-			} else if (column == 5) {
+			}
+			else if (column == 5) {
 				return Path.getPathWithoutSchemeAndAuthority(statuses[row].getPath());
-			} else {
+			}
+			else {
 				return "";
 			}
 		}
